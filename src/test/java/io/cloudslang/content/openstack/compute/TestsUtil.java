@@ -1,9 +1,11 @@
 package io.cloudslang.content.openstack.compute;
 
-import io.cloudslang.content.openstack.compute.builders.CommonInputs;
-import io.cloudslang.content.openstack.compute.builders.api.ApiInputs;
+import io.cloudslang.content.openstack.compute.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
 import io.cloudslang.content.openstack.compute.wrappers.InputsWrapper;
 import org.junit.rules.ExpectedException;
+
+import static java.util.Arrays.copyOf;
 
 public class TestsUtil {
     private TestsUtil() {
@@ -21,8 +23,8 @@ public class TestsUtil {
                 .build();
     }
 
-    public static CommonInputs getCommonInputs(String endpoint, String api, String version, String action) {
-        return new CommonInputs.Builder()
+    public static CommonInputsBuilder getCommonInputs(String endpoint, String api, String version, String action) {
+        return new CommonInputsBuilder.Builder()
                 .withEndpoint(endpoint)
                 .withApi(api)
                 .withVersion(version)
@@ -30,9 +32,14 @@ public class TestsUtil {
                 .build();
     }
 
-    public static ApiInputs getApiInputs(String version) {
-        return new ApiInputs.Builder()
+    public static ApiInputsBuilder getApiInputs(String version) {
+        return new ApiInputsBuilder.Builder()
                 .withApiVersion(version)
                 .build();
+    }
+
+    @SafeVarargs
+    public static <E> E[] newArray(int length, E... array) {
+        return copyOf(array, length);
     }
 }

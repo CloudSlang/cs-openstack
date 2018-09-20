@@ -8,9 +8,9 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.MatchType;
 import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
-import io.cloudslang.content.openstack.compute.builders.CommonInputs;
-import io.cloudslang.content.openstack.compute.entities.api.ListAllMajorVersionsResponse;
-import io.cloudslang.content.openstack.compute.service.ComputeService;
+import io.cloudslang.content.openstack.compute.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.compute.responses.api.ListAllMajorVersionsResponse;
+import io.cloudslang.content.openstack.compute.service.OpenstackService;
 
 import java.util.Map;
 
@@ -19,6 +19,7 @@ import static io.cloudslang.content.constants.OutputNames.RETURN_CODE;
 import static io.cloudslang.content.constants.OutputNames.RETURN_RESULT;
 import static io.cloudslang.content.constants.ResponseNames.FAILURE;
 import static io.cloudslang.content.constants.ResponseNames.SUCCESS;
+import static io.cloudslang.content.httpclient.build.auth.AuthTypes.ANONYMOUS;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.CONNECT_TIMEOUT;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.KEEP_ALIVE;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.KEYSTORE;
@@ -33,23 +34,20 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_K
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_PASSWORD;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COOKIES;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
-import static io.cloudslang.content.openstack.compute.builders.HttpClientInputsBuilder.buildHttpClient;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.LIST_ALL_MAJOR_VERSIONS;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Values.DEFAULT_TIMEOUT_VALUE;
+import static io.cloudslang.content.openstack.compute.builders.HttpClientInputsBuilder.buildHttpClientInputs;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.Api.LIST_ALL_MAJOR_VERSIONS;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.CommonInputs.VERSION;
 import static io.cloudslang.content.openstack.compute.handlers.ResponseHandler.handleResponse;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.http.client.config.AuthSchemes.BASIC;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class ListAllMajorVersions {
+    private static final String AVAILABLE_API_VERSIONS = "availableApiVersions";
+
     /**
      * Fetches all the information about all known major API versions in the deployment.
      * Links to more specific information will be provided for each API version, as well as information about supported
@@ -119,7 +117,7 @@ public class ListAllMajorVersions {
      *                             Please reference: https://docs.openstack.org/nova/latest/reference/api-microversion-history.html
      *                             for API microversion history details.
      * @return A map with strings as keys and strings as values that contains: outcome of the action (or failure message
-     * and the exception if there is one), returnCode of the operation and the ID of the request
+     * and the exception if there is one), returnCode of the operation
      */
     @Action(name = "List All Major Versions",
             outputs = {
@@ -150,57 +148,27 @@ public class ListAllMajorVersions {
                                        @Param(value = KEEP_ALIVE) String keepAlive,
                                        @Param(value = VERSION) String version) {
         try {
-            HttpClientInputs httpClientInputs = getHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
+            HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
                     trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
-                    connectTimeout, socketTimeout, useCookies, keepAlive);
+                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME, ANONYMOUS, APPLICATION_JSON.getMimeType());
 
-            final CommonInputs commonInputs = new CommonInputs.Builder()
+            final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
                     .withAction(LIST_ALL_MAJOR_VERSIONS)
                     .withApi(EMPTY)
                     .withVersion(version)
                     .build();
 
-            Map<String, String> response = new ComputeService().execute(httpClientInputs, commonInputs);
+            Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder);
 
             String additionalInformation = handleResponse(response.get(RETURN_RESULT), ListAllMajorVersionsResponse.class);
             if (isNotBlank(additionalInformation)) {
-                response.put("availableVersions", additionalInformation);
+                response.put(AVAILABLE_API_VERSIONS, additionalInformation);
             }
 
             return response;
         } catch (Exception exception) {
             return getFailureResultsMap(exception);
         }
-    }
-
-    private HttpClientInputs getHttpClientInputs(@Param(PROXY_HOST) String proxyHost,
-                                                 @Param(PROXY_PORT) String proxyPort,
-                                                 @Param(PROXY_USERNAME) String proxyUsername,
-                                                 @Param(value = PROXY_PASSWORD, encrypted = true) String proxyPassword,
-                                                 @Param(TRUST_ALL_ROOTS) String trustAllRoots,
-                                                 @Param(X509_HOSTNAME_VERIFIER) String x509HostnameVerifier,
-                                                 @Param(TRUST_KEYSTORE) String trustKeystore,
-                                                 @Param(value = TRUST_PASSWORD, encrypted = true) String trustPassword,
-                                                 @Param(KEYSTORE) String keystore,
-                                                 @Param(value = KEYSTORE_PASSWORD, encrypted = true) String keystorePassword,
-                                                 @Param(CONNECT_TIMEOUT) String connectTimeout,
-                                                 @Param(SOCKET_TIMEOUT) String socketTimeout,
-                                                 @Param(USE_COOKIES) String useCookies,
-                                                 @Param(KEEP_ALIVE) String keepAlive) {
-
-        HttpClientInputs httpClientInputs = buildHttpClient(proxyHost, proxyPort, proxyUsername, proxyPassword,
-                x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword);
-
-        httpClientInputs.setMethod(METHOD_NAME);
-        httpClientInputs.setAuthType(BASIC);
-        httpClientInputs.setQueryParamsAreURLEncoded(valueOf(FALSE));
-        httpClientInputs.setTrustAllRoots(defaultIfEmpty(trustAllRoots, valueOf(FALSE)));
-        httpClientInputs.setConnectTimeout(defaultIfEmpty(connectTimeout, DEFAULT_TIMEOUT_VALUE));
-        httpClientInputs.setSocketTimeout(defaultIfEmpty(socketTimeout, DEFAULT_TIMEOUT_VALUE));
-        httpClientInputs.setUseCookies(defaultIfEmpty(useCookies, valueOf(FALSE)));
-        httpClientInputs.setKeepAlive(defaultIfEmpty(keepAlive, valueOf(TRUE)));
-
-        return httpClientInputs;
     }
 }

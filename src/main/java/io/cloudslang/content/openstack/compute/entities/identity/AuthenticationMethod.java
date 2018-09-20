@@ -1,5 +1,6 @@
-package io.cloudslang.content.openstack.compute.entities;
+package io.cloudslang.content.openstack.compute.entities.identity;
 
+import io.cloudslang.content.openstack.compute.entities.Api;
 import io.cloudslang.content.openstack.compute.exceptions.OpenstackException;
 
 import java.util.HashMap;
@@ -10,20 +11,20 @@ import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getEnumVa
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
-public enum Api {
-    SERVERS("servers"),
-    API("");
+public enum AuthenticationMethod {
+    PASSWORD("password"),
+    TOKEN("token");
 
-    private static final Map<String, String> API_MAP = new HashMap<>();
+    private static final Map<String, String> AUTHENTICATION_METHOD_MAP = new HashMap<>();
 
     static {
         stream(values())
-                .forEach(a -> API_MAP.put(a.name().toLowerCase(), a.getValue()));
+                .forEach(a -> AUTHENTICATION_METHOD_MAP.put(a.name().toLowerCase(), a.getValue()));
     }
 
     private final String value;
 
-    Api(String value) {
+    AuthenticationMethod(String value) {
         this.value = value;
     }
 
@@ -33,8 +34,8 @@ public enum Api {
 
     public static String fromString(String input) throws OpenstackException {
         return Optional
-                .ofNullable(API_MAP.get(input))
+                .ofNullable(AUTHENTICATION_METHOD_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Couchbase Api: '%s'. Valid values: '%s'.",
-                        input, getEnumValidValuesString(Api.class))));
+                        input, getEnumValidValuesString(AuthenticationMethod.class))));
     }
 }

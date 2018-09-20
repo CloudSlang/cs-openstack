@@ -1,4 +1,4 @@
-package io.cloudslang.content.openstack.compute.actions.api;
+package io.cloudslang.content.openstack.compute.actions.identity;
 
 import com.hp.oo.sdk.content.annotations.Action;
 import com.hp.oo.sdk.content.annotations.Output;
@@ -9,7 +9,7 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.compute.builders.CommonInputsBuilder;
-import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
+import io.cloudslang.content.openstack.compute.responses.identity.AuthenticationResponse;
 import io.cloudslang.content.openstack.compute.service.OpenstackService;
 
 import java.util.Map;
@@ -35,23 +35,46 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_P
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COOKIES;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
 import static io.cloudslang.content.openstack.compute.builders.HttpClientInputsBuilder.buildHttpClientInputs;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.Api.GET_API_VERSION_DETAILS;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
-import static io.cloudslang.content.openstack.compute.entities.Inputs.Api.API_VERSION;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.Identity.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Headers.X_SUBJECT_TOKEN;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Responses.EXPIRES_AT;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Responses.NEVER;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Responses.TOKEN;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_IDENTITY_VERSION;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.CommonInputs.VERSION;
+import static io.cloudslang.content.openstack.compute.handlers.ResponseHandler.getHeaderValue;
+import static io.cloudslang.content.openstack.compute.handlers.ResponseHandler.handleResponse;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
-import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.http.client.methods.HttpPost.METHOD_NAME;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
-public class GetApiVersionDetails {
+public class PasswordAuthenticationWithUnscopedAuthorization {
+    private static final String RESPONSE_HEADERS = "responseHeaders";
+
     /**
-     * Fetches all the information about all known major API versions in the deployment.
-     * Links to more specific information will be provided for each API version, as well as information about supported
-     * min and max microversions.
+     * Authenticates an identity and generates a token. Uses the password authentication method. Authorization is unscoped.
+     * The request body must include a payload that specifies the authentication method, which is password, and the user,
+     * by ID or name, and password credentials.
      * <p>
-     * Normal Response Codes: 200.
-     * Reference URL: https://developer.openstack.org/api-ref/compute/
+     * Normal response codes: 201.
+     * <p>
+     * Authentication errors:
+     * <p>
+     * 400 - Bad Request: Some content in the request was invalid.
+     * 401 - Unauthorized: User must authenticate before making a request.
+     * 403 - Forbidden:	Policy does not allow current user to do this operation.
+     * 404 - Not Found:	The requested resource could not be found.
+     * 405 - Method Not Allowed: Method is not valid for this endpoint.
+     * 409 - Conflict: This operation conflicted with another operation on this resource.
+     * 413 - Request Entity Too Large: The request is larger than the server is willing or able to process.
+     * 415 - Unsupported Media Type: The request entity has a media type which the server or resource does not support.
+     * 503 - Service Unavailable: Service is not available. This is mostly caused by service configuration errors which
+     * prevents the service from successful start up.
+     * <p>
+     * Reference URL: https://developer.openstack.org/api-ref/identity/v3/#authentication-and-token-management
      *
      * @param endpoint             Endpoint to which request will be sent. A valid endpoint will be formatted as it shows
      *                             in bellow example.
@@ -108,18 +131,13 @@ public class GetApiVersionDetails {
      *                             execution it will close it.
      *                             Valid values: "true", "false"
      *                             Default value: "true"
-     * @param version              Optional - specifies the Openstack API version.
-     *                             Default value: "2.0"
-     *                             Notes: The maximum microversion supported by each release varies.
-     *                             Please reference: https://docs.openstack.org/nova/latest/reference/api-microversion-history.html
-     *                             for API microversion history details.
-     * @param apiVersion           The API version to obtain details for
-     *                             Examples: "v2.0", "v2.1"
-     *                             Default value: "v2.0"
+     * @param version              The Identity API version
+     *                             Examples: "v2", "v3"
+     *                             Default value: "v3"
      * @return A map with strings as keys and strings as values that contains: outcome of the action (or failure message
      * and the exception if there is one), returnCode of the operation
      */
-    @Action(name = "Get Api Version Details",
+    @Action(name = "Password authentication with unscoped authorization",
             outputs = {
                     @Output(RETURN_CODE),
                     @Output(RETURN_RESULT),
@@ -146,25 +164,33 @@ public class GetApiVersionDetails {
                                        @Param(value = SOCKET_TIMEOUT) String socketTimeout,
                                        @Param(value = USE_COOKIES) String useCookies,
                                        @Param(value = KEEP_ALIVE) String keepAlive,
-                                       @Param(value = VERSION) String version,
-                                       @Param(value = API_VERSION, required = true) String apiVersion) {
+                                       @Param(value = VERSION) String version) {
         try {
             HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
-                    trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
-                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME, ANONYMOUS, APPLICATION_JSON.getMimeType());
+                    trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword, connectTimeout,
+                    socketTimeout, useCookies, keepAlive, METHOD_NAME, ANONYMOUS, APPLICATION_JSON.getMimeType());
 
             final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
-                    .withAction(GET_API_VERSION_DETAILS)
-                    .withApi(API)
-                    .withVersion(version)
+                    .withAction(PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION)
+                    .withVersion(defaultIfEmpty(version, DEFAULT_IDENTITY_VERSION))
                     .build();
 
-            final ApiInputsBuilder apiInputsBuilder = new ApiInputsBuilder.Builder()
-                    .withApiVersion(apiVersion)
-                    .build();
+            Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder);
 
-            return new OpenstackService().execute(httpClientInputs, commonInputsBuilder, apiInputsBuilder);
+            String token = getHeaderValue(response.get(RESPONSE_HEADERS), X_SUBJECT_TOKEN);
+            if (isNotBlank(token)) {
+                response.put(TOKEN, token);
+            }
+
+            String expiresAt = handleResponse(response.get(RETURN_RESULT), AuthenticationResponse.class);
+            if (isNotBlank(expiresAt)) {
+                response.put(EXPIRES_AT, expiresAt);
+            } else {
+                response.put(EXPIRES_AT, NEVER);
+            }
+
+            return response;
         } catch (Exception exception) {
             return getFailureResultsMap(exception);
         }

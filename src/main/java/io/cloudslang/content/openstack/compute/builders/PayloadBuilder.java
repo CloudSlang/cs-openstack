@@ -10,7 +10,7 @@ public class PayloadBuilder {
 
     public static void buildPayload(InputsWrapper wrapper) {
         if (METHOD_NAME.equals(wrapper.getHttpClientInputs().getMethod())) {
-            switch (wrapper.getCommonInputs().getAction()) {
+            switch (wrapper.getCommonInputsBuilder().getAction()) {
                 default:
                     break;
             }

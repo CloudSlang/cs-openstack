@@ -1,9 +1,9 @@
 package io.cloudslang.content.openstack.compute.builders.api;
 
-public class ApiInputs {
+public class ApiInputsBuilder {
     private final String apiVersion;
 
-    private ApiInputs(Builder builder) {
+    private ApiInputsBuilder(Builder builder) {
         this.apiVersion = builder.apiVersion;
     }
 
@@ -14,8 +14,8 @@ public class ApiInputs {
     public static class Builder {
         private String apiVersion;
 
-        public ApiInputs build() {
-            return new ApiInputs(this);
+        public ApiInputsBuilder build() {
+            return new ApiInputsBuilder(this);
         }
 
         public Builder withApiVersion(String inputValue) {

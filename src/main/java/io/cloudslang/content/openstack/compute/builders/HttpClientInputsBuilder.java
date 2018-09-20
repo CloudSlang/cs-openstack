@@ -2,7 +2,12 @@ package io.cloudslang.content.openstack.compute.builders;
 
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 
+import static io.cloudslang.content.openstack.compute.entities.Constants.Values.DEFAULT_TIMEOUT_VALUE;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -10,9 +15,11 @@ public class HttpClientInputsBuilder {
     private HttpClientInputsBuilder() {
     }
 
-    public static HttpClientInputs buildHttpClient(String proxyHost, String proxyPort, String proxyUsername, String proxyPassword,
-                                                   String x509HostnameVerifier, String trustKeystore, String trustPassword,
-                                                   String keystore, String keystorePassword) {
+    public static HttpClientInputs buildHttpClientInputs(String proxyHost, String proxyPort, String proxyUsername, String proxyPassword,
+                                                         String trustAllRoots, String x509HostnameVerifier, String trustKeystore,
+                                                         String trustPassword, String keystore, String keystorePassword,
+                                                         String connectTimeout, String socketTimeout, String useCookies,
+                                                         String keepAlive, String method, String authType, String contentType) {
         HttpClientInputs httpClientInputs = new HttpClientInputs();
 
         if (isNotBlank(proxyHost) && isNotBlank(proxyPort)) {
@@ -40,6 +47,17 @@ public class HttpClientInputsBuilder {
         } else {
             httpClientInputs.setX509HostnameVerifier(x509HostnameVerifier);
         }
+
+        httpClientInputs.setTrustAllRoots(defaultIfEmpty(trustAllRoots, valueOf(FALSE)));
+        httpClientInputs.setConnectTimeout(defaultIfEmpty(connectTimeout, DEFAULT_TIMEOUT_VALUE));
+        httpClientInputs.setSocketTimeout(defaultIfEmpty(socketTimeout, DEFAULT_TIMEOUT_VALUE));
+        httpClientInputs.setUseCookies(defaultIfEmpty(useCookies, valueOf(FALSE)));
+        httpClientInputs.setKeepAlive(defaultIfEmpty(keepAlive, valueOf(TRUE)));
+        httpClientInputs.setQueryParamsAreURLEncoded(valueOf(FALSE));
+
+        httpClientInputs.setMethod(method);
+        httpClientInputs.setAuthType(authType);
+        httpClientInputs.setContentType(contentType);
 
         return httpClientInputs;
     }

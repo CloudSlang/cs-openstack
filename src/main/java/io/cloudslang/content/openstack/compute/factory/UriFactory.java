@@ -16,13 +16,13 @@ public class UriFactory {
     }
 
     public static String getUri(InputsWrapper wrapper) throws OpenstackException {
-        String api = wrapper.getCommonInputs().getApi();
+        String api = wrapper.getCommonInputsBuilder().getApi();
 
         switch (api) {
             case API:
-                return appendIfMissing(COMPUTE_URI, SLASH) + wrapper.getCommonInputs().getVersion() + getApiUri(wrapper);
+                return appendIfMissing(COMPUTE_URI, SLASH) + wrapper.getCommonInputsBuilder().getVersion() + getApiUri(wrapper);
             case SERVERS:
-                return appendIfMissing(COMPUTE_URI + SLASH + SERVERS, SLASH) + wrapper.getCommonInputs().getVersion();
+                return appendIfMissing(COMPUTE_URI + SLASH + SERVERS, SLASH) + wrapper.getCommonInputsBuilder().getVersion();
             default:
                 throw new OpenstackException(format("Unknown api: %s", api));
         }

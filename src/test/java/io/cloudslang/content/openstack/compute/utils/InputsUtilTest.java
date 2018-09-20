@@ -8,7 +8,7 @@ import org.junit.rules.ExpectedException;
 import java.net.MalformedURLException;
 
 import static io.cloudslang.content.openstack.compute.TestsUtil.getInputsWrapper;
-import static io.cloudslang.content.openstack.compute.entities.Api.getValue;
+import static io.cloudslang.content.openstack.compute.entities.Api.fromString;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.buildUrl;
 import static org.junit.Assert.assertEquals;
 
@@ -21,17 +21,17 @@ public class InputsUtilTest {
         setExpectedExceptions(OpenstackException.class, exception,
                 "Invalid Couchbase Api: 'Any other value than Api enum value'. Valid values: 'servers,'.");
 
-        getValue("Any other value than Api enum value");
+        fromString("Any other value than Api enum value");
     }
 
     @Test
     public void shouldReturnEmptyWhenApi() throws OpenstackException {
-        assertEquals("", getValue("api"));
+        assertEquals("", fromString("api"));
     }
 
     @Test
     public void shouldReturnValidValue() throws OpenstackException {
-        assertEquals("servers", getValue("servers"));
+        assertEquals("servers", fromString("servers"));
     }
 
     @Test

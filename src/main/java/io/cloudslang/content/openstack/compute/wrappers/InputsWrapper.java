@@ -1,39 +1,39 @@
 package io.cloudslang.content.openstack.compute.wrappers;
 
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
-import io.cloudslang.content.openstack.compute.builders.CommonInputs;
-import io.cloudslang.content.openstack.compute.builders.api.ApiInputs;
+import io.cloudslang.content.openstack.compute.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
 
 public class InputsWrapper {
     private final HttpClientInputs httpClientInputs;
-    private final CommonInputs commonInputs;
+    private final CommonInputsBuilder commonInputsBuilder;
 
-    private ApiInputs apiInputs;
+    private ApiInputsBuilder apiInputsBuilder;
 
     private InputsWrapper(Builder builder) {
         this.httpClientInputs = builder.httpClientInputs;
-        this.commonInputs = builder.commonInputs;
+        this.commonInputsBuilder = builder.commonInputsBuilder;
     }
 
     public HttpClientInputs getHttpClientInputs() {
         return httpClientInputs;
     }
 
-    public CommonInputs getCommonInputs() {
-        return commonInputs;
+    public CommonInputsBuilder getCommonInputsBuilder() {
+        return commonInputsBuilder;
     }
 
-    public ApiInputs getApiInputs() {
-        return apiInputs;
+    public ApiInputsBuilder getApiInputsBuilder() {
+        return apiInputsBuilder;
     }
 
-    public void setApiInputs(ApiInputs apiInputs) {
-        this.apiInputs = apiInputs;
+    public void setApiInputsBuilder(ApiInputsBuilder apiInputsBuilder) {
+        this.apiInputsBuilder = apiInputsBuilder;
     }
 
     public static class Builder {
         private HttpClientInputs httpClientInputs;
-        private CommonInputs commonInputs;
+        private CommonInputsBuilder commonInputsBuilder;
 
         public InputsWrapper build() {
             return new InputsWrapper(this);
@@ -44,8 +44,8 @@ public class InputsWrapper {
             return this;
         }
 
-        public Builder withCommonInputs(CommonInputs commonInputs) {
-            this.commonInputs = commonInputs;
+        public Builder withCommonInputs(CommonInputsBuilder commonInputsBuilder) {
+            this.commonInputsBuilder = commonInputsBuilder;
             return this;
         }
     }

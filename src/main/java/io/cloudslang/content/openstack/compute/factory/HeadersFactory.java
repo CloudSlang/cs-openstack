@@ -7,7 +7,7 @@ public class HeadersFactory {
     }
 
     public static void setHeaders(InputsWrapper wrapper) {
-        switch (wrapper.getCommonInputs().getApi()) {
+        switch (wrapper.getCommonInputsBuilder().getApi()) {
 
             default:
                 break;

@@ -1,6 +1,8 @@
-package io.cloudslang.content.openstack.compute.entities.api;
+package io.cloudslang.content.openstack.compute.responses.api;
 
 import com.google.gson.annotations.SerializedName;
+import io.cloudslang.content.openstack.compute.entities.api.Link;
+import io.cloudslang.content.openstack.compute.entities.api.Version;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +37,8 @@ public class ListAllMajorVersionsResponse {
     // This will be the empty string if microversions are not supported.
     private String version;
 
-    public ListAllMajorVersionsResponse(List<Version> versions, String id, List<Link> links, String minVersion, String status, String updated, String version) {
+    public ListAllMajorVersionsResponse(List<Version> versions, String id, List<Link> links, String minVersion,
+                                        String status, String updated, String version) {
         this.versions = versions;
         this.id = id;
         this.links = links;

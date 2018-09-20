@@ -19,7 +19,7 @@ import java.util.HashMap;
 import static io.cloudslang.content.openstack.compute.TestsUtil.getApiInputs;
 import static io.cloudslang.content.openstack.compute.TestsUtil.getCommonInputs;
 import static io.cloudslang.content.openstack.compute.TestsUtil.setExpectedExceptions;
-import static io.cloudslang.content.openstack.compute.builders.HttpClientInputsBuilder.buildHttpClient;
+import static io.cloudslang.content.openstack.compute.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -30,8 +30,8 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({HttpClientService.class, ComputeService.class})
-public class ComputeServiceTest {
+@PrepareForTest({HttpClientService.class, OpenstackService.class})
+public class OpenstackServiceTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
@@ -41,17 +41,18 @@ public class ComputeServiceTest {
     private HttpClientInputs httpClientInputs;
 
     @InjectMocks
-    private ComputeService toTest;
+    private OpenstackService toTest;
 
     @Before
     public void init() throws Exception {
         whenNew(HttpClientService.class).withAnyArguments().thenReturn(httpClientServiceMock);
         when(httpClientServiceMock.execute(any(HttpClientInputs.class))).thenReturn(new HashMap<>());
 
-        httpClientInputs = buildHttpClient("", "", "", "", "",
-                "", "", "", "");
+        httpClientInputs = buildHttpClientInputs("", "", "", "", "",
+                "", "", "", "", "", "",
+                "", "", "", "", "", "");
 
-        toTest = new ComputeService();
+        toTest = new OpenstackService();
     }
 
     @Test

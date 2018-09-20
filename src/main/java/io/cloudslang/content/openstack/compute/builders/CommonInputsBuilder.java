@@ -1,19 +1,19 @@
 package io.cloudslang.content.openstack.compute.builders;
 
 import static io.cloudslang.content.openstack.compute.entities.Constants.Miscellaneous.SLASH;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_VERSION;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_API_VERSION;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.join;
 
-public class CommonInputs {
+public class CommonInputsBuilder {
     private final String endpoint;
     private final String action;
     private final String api;
     private final String version;
 
-    private CommonInputs(Builder builder) {
+    private CommonInputsBuilder(Builder builder) {
         this.endpoint = builder.endpoint;
         this.action = builder.action;
         this.api = builder.api;
@@ -42,8 +42,8 @@ public class CommonInputs {
         private String api;
         private String version;
 
-        public CommonInputs build() {
-            return new CommonInputs(this);
+        public CommonInputsBuilder build() {
+            return new CommonInputsBuilder(this);
         }
 
         public Builder withEndpoint(String inputValue) {
@@ -62,7 +62,7 @@ public class CommonInputs {
         }
 
         public Builder withVersion(String inputValue) {
-            version = appendIfMissing(defaultIfEmpty(inputValue, DEFAULT_VERSION), SLASH);
+            version = appendIfMissing(defaultIfEmpty(inputValue, DEFAULT_API_VERSION), SLASH);
             return this;
         }
     }
