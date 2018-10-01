@@ -1,9 +1,9 @@
 package io.cloudslang.content.openstack.compute.factory.api;
 
-import io.cloudslang.content.openstack.compute.wrappers.InputsWrapper;
+import io.cloudslang.content.openstack.entities.InputsWrapper;
 
-import static io.cloudslang.content.openstack.compute.entities.Api.API;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.Api.GET_API_VERSION_DETAILS;
+import static io.cloudslang.content.openstack.compute.entities.ComputeApi.API;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.GET_API_VERSION_DETAILS;
 
 public class ApiUrifactory {
     private ApiUrifactory() {

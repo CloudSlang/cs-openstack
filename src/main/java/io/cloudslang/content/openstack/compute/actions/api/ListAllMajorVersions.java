@@ -8,9 +8,9 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.MatchType;
 import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
-import io.cloudslang.content.openstack.compute.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.responses.api.ListAllMajorVersionsResponse;
-import io.cloudslang.content.openstack.compute.service.OpenstackService;
+import io.cloudslang.content.openstack.service.OpenstackService;
 
 import java.util.Map;
 
@@ -34,11 +34,11 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_K
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_PASSWORD;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COOKIES;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
-import static io.cloudslang.content.openstack.compute.builders.HttpClientInputsBuilder.buildHttpClientInputs;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.Api.LIST_ALL_MAJOR_VERSIONS;
-import static io.cloudslang.content.openstack.compute.entities.Inputs.CommonInputs.ENDPOINT;
-import static io.cloudslang.content.openstack.compute.entities.Inputs.CommonInputs.VERSION;
-import static io.cloudslang.content.openstack.compute.handlers.ResponseHandler.handleResponse;
+import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.LIST_ALL_MAJOR_VERSIONS;
+import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
+import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
+import static io.cloudslang.content.openstack.handlers.ResponseHandler.handleResponse;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
