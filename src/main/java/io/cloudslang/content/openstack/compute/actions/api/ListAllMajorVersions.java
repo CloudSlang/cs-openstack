@@ -10,8 +10,10 @@ import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.responses.api.ListAllMajorVersionsResponse;
+import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.service.OpenstackService;
 
+import java.net.MalformedURLException;
 import java.util.Map;
 
 import static io.cloudslang.content.constants.OutputNames.EXCEPTION;
@@ -167,7 +169,7 @@ public class ListAllMajorVersions {
             }
 
             return response;
-        } catch (Exception exception) {
+        } catch (OpenstackException | MalformedURLException exception) {
             return getFailureResultsMap(exception);
         }
     }

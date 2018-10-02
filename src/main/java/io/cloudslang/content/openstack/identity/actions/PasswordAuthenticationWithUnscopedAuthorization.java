@@ -9,6 +9,7 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 import io.cloudslang.content.openstack.identity.entities.Auth;
 import io.cloudslang.content.openstack.identity.entities.AuthenticationMethod;
@@ -19,6 +20,7 @@ import io.cloudslang.content.openstack.identity.entities.User;
 import io.cloudslang.content.openstack.identity.responses.AuthenticationResponse;
 import io.cloudslang.content.openstack.service.OpenstackService;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -254,7 +256,7 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
             }
 
             return response;
-        } catch (Exception exception) {
+        } catch (MalformedURLException | OpenstackException exception) {
             return getFailureResultsMap(exception);
         }
     }

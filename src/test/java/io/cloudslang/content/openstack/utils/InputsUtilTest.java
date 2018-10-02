@@ -20,7 +20,7 @@ public class InputsUtilTest {
     @Test
     public void shouldThrowOpenstackExceptionWithSpecificErrorMessage() throws OpenstackException {
         setExpectedExceptions(OpenstackException.class, exception,
-                "Invalid Couchbase ComputeApis: 'Any other value than ComputeApis enum value'. Valid values: 'servers,'.");
+                "Invalid Openstack Compute Api: 'Any other value than ComputeApis enum value'. Valid values: 'servers,'.");
 
         fromString("Any other value than ComputeApis enum value");
     }
