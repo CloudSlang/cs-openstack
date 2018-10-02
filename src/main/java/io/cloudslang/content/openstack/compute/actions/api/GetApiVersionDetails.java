@@ -36,8 +36,8 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COO
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.GET_API_VERSION_DETAILS;
-import static io.cloudslang.content.openstack.compute.entities.Constants.ComputeApis.API;
-import static io.cloudslang.content.openstack.entities.Inputs.Api.API_VERSION;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
+import static io.cloudslang.content.openstack.compute.entities.Inputs.Api.API_VERSION;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;

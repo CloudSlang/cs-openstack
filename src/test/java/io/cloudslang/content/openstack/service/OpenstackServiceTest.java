@@ -70,7 +70,7 @@ public class OpenstackServiceTest {
     }
 
     @Test
-    public void shouldFallbackWhenNoVersion() throws MalformedURLException, OpenstackException {
+    public void shouldFallbackWhenNoVersionComputeApi() throws MalformedURLException, OpenstackException {
         toTest.execute(httpClientInputs, getCommonInputs("http://example.com:8080", "servers", "", "no matter what"));
 
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));

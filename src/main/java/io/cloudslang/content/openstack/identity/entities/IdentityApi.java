@@ -1,4 +1,4 @@
-package io.cloudslang.content.openstack.compute.entities;
+package io.cloudslang.content.openstack.identity.entities;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
@@ -10,20 +10,20 @@ import static io.cloudslang.content.openstack.utils.InputsUtil.getEnumValidValue
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
-public enum ComputeApi {
-    SERVERS("servers"),
-    API("");
+public enum IdentityApi {
+    AUTH("auth"),
+    TOKENS("tokens");
 
-    private static final Map<String, String> API_MAP = new HashMap<>();
+    private static final Map<String, String> IDENTITY_API_MAP = new HashMap<>();
 
     static {
         stream(values())
-                .forEach(a -> API_MAP.put(a.name().toLowerCase(), a.getValue()));
+                .forEach(a -> IDENTITY_API_MAP.put(a.name().toLowerCase(), a.getValue()));
     }
 
     private final String value;
 
-    ComputeApi(String value) {
+    IdentityApi(String value) {
         this.value = value;
     }
 
@@ -33,8 +33,8 @@ public enum ComputeApi {
 
     public static String fromString(String input) throws OpenstackException {
         return Optional
-                .ofNullable(API_MAP.get(input))
-                .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Compute Api: '%s'. Valid values: '%s'.",
-                        input, getEnumValidValuesString(ComputeApi.class))));
+                .ofNullable(IDENTITY_API_MAP.get(input))
+                .orElseThrow(() -> new OpenstackException(format("Invalid Identity Api: '%s'. Valid values: '%s'.",
+                        input, getEnumValidValuesString(IdentityApi.class))));
     }
 }

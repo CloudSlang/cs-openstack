@@ -6,6 +6,7 @@ public class Constants {
 
     public static class Miscellaneous {
         public static final String BLANK_SPACE = " ";
+        public static final String COLON = ":";
         public static final String SLASH = "/";
     }
 

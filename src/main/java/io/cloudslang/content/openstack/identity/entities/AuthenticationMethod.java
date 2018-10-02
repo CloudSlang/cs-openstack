@@ -34,7 +34,7 @@ public enum AuthenticationMethod {
     public static String fromString(String input) throws OpenstackException {
         return Optional
                 .ofNullable(AUTHENTICATION_METHOD_MAP.get(input))
-                .orElseThrow(() -> new OpenstackException(format("Invalid Couchbase ComputeApis: '%s'. Valid values: '%s'.",
+                .orElseThrow(() -> new OpenstackException(format("Invalid Openstack authentication method: '%s'. Valid values: '%s'.",
                         input, getEnumValidValuesString(AuthenticationMethod.class))));
     }
 }

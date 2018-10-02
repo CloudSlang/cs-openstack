@@ -9,7 +9,7 @@ public class Constants {
         public static final String LIST_ALL_MAJOR_VERSIONS = "ListAllMajorVersions";
     }
 
-    public static class ComputeApis {
+    public static class Api {
         public static final String API = "api";
         public static final String SERVERS = "servers";
     }

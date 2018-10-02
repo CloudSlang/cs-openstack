@@ -8,6 +8,7 @@ import org.junit.rules.ExpectedException;
 import java.net.MalformedURLException;
 
 import static io.cloudslang.content.openstack.TestsUtil.getInputsWrapper;
+import static io.cloudslang.content.openstack.TestsUtil.setExpectedExceptions;
 import static io.cloudslang.content.openstack.compute.entities.ComputeApi.fromString;
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildUrl;
 import static org.junit.Assert.assertEquals;
@@ -38,11 +39,5 @@ public class InputsUtilTest {
     public void shouldReturnValidEndpoint() throws MalformedURLException, OpenstackException {
         assertEquals("https://www.example.com:8080/compute/v2.0/",
                 buildUrl(getInputsWrapper("https://www.example.com:8080", "api", "", "ListAllMajorVersions")));
-    }
-
-    @SuppressWarnings({"unchecked", "SameParameterValue"})
-    private static void setExpectedExceptions(Class<?> type, ExpectedException exception, String message) {
-        exception.expect((Class<? extends Throwable>) type);
-        exception.expectMessage(message);
     }
 }

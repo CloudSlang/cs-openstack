@@ -9,9 +9,17 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
+import io.cloudslang.content.openstack.identity.entities.Auth;
+import io.cloudslang.content.openstack.identity.entities.AuthenticationMethod;
+import io.cloudslang.content.openstack.identity.entities.Domain;
+import io.cloudslang.content.openstack.identity.entities.Identity;
+import io.cloudslang.content.openstack.identity.entities.Password;
+import io.cloudslang.content.openstack.identity.entities.User;
 import io.cloudslang.content.openstack.identity.responses.AuthenticationResponse;
 import io.cloudslang.content.openstack.service.OpenstackService;
 
+import java.util.List;
 import java.util.Map;
 
 import static io.cloudslang.content.constants.OutputNames.EXCEPTION;
@@ -35,17 +43,27 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_P
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COOKIES;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Actions.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.EXPIRES_AT;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.NEVER;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.TOKEN;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Versions.DEFAULT_IDENTITY_VERSION;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
 import static io.cloudslang.content.openstack.handlers.ResponseHandler.getHeaderValue;
 import static io.cloudslang.content.openstack.handlers.ResponseHandler.handleResponse;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Actions.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Api.IDENTITY;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
+import static io.cloudslang.content.openstack.identity.entities.Constants.QueryParams.NO_CATALOG;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.EXPIRES_AT;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.NEVER;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.TOKEN;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Versions.DEFAULT_IDENTITY_VERSION;
+import static io.cloudslang.content.openstack.identity.entities.Inputs.DOMAIN_ID;
+import static io.cloudslang.content.openstack.identity.entities.Inputs.DOMAIN_NAME;
+import static io.cloudslang.content.openstack.identity.entities.Inputs.ID;
+import static io.cloudslang.content.openstack.identity.entities.Inputs.PASSWORD;
+import static io.cloudslang.content.openstack.identity.entities.Inputs.USERNAME;
+import static io.cloudslang.content.openstack.identity.utils.IdentityUtils.buildDomain;
+import static io.cloudslang.content.openstack.identity.utils.IdentityUtils.buildUser;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.http.client.methods.HttpPost.METHOD_NAME;
@@ -78,7 +96,7 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
      *
      * @param endpoint             Endpoint to which request will be sent. A valid endpoint will be formatted as it shows
      *                             in bellow example.
-     *                             Example: "http://mycompute.pvt/"
+     *                             Example: "http://mycompute.pvt::5000/"
      * @param proxyHost            Optional - proxy server used to connect to Openstack API. If empty no proxy will be used.
      * @param proxyPort            Optional - proxy server port. You must either specify values for both proxyHost and
      *                             proxyPort inputs or leave them both empty.
@@ -134,6 +152,20 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
      * @param version              The Identity API version
      *                             Examples: "v2", "v3"
      *                             Default value: "v3"
+     * @param username             Optional - User name. Required if you do not specify the ID of the user. If you specify
+     *                             the user name, you must also specify the domain, by ID or name. Specify either username
+     *                             or userId but not both.
+     * @param id                   Optional - ID of the user. Required if you do not specify the user name. Specify
+     *                             either username or userId but not both.
+     * @param password             Optional - User password needed for authentication.
+     * @param domainId             Optional - Domain id where user belongs to. If you specify the user name, you must
+     *                             also specify the domain, either by ID or name but not both.
+     * @param domainName           Optional - Domain name where user belongs to. If you specify the user name, you
+     *                             must also specify the domain, either by ID or name but not both.
+     * @param noCatalog            Optional - (Since v3.1) Authentication response excludes the service catalog. By default,
+     *                             the response includes the service catalog.
+     *                             Valid values: "true", "false"
+     *                             Default value: "true"
      * @return A map with strings as keys and strings as values that contains: outcome of the action (or failure message
      * and the exception if there is one), returnCode of the operation
      */
@@ -164,7 +196,13 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
                                        @Param(value = SOCKET_TIMEOUT) String socketTimeout,
                                        @Param(value = USE_COOKIES) String useCookies,
                                        @Param(value = KEEP_ALIVE) String keepAlive,
-                                       @Param(value = VERSION) String version) {
+                                       @Param(value = VERSION) String version,
+                                       @Param(value = ID) String id,
+                                       @Param(value = USERNAME) String username,
+                                       @Param(value = PASSWORD) String password,
+                                       @Param(value = DOMAIN_ID) String domainId,
+                                       @Param(value = DOMAIN_NAME) String domainName,
+                                       @Param(value = NO_CATALOG) String noCatalog) {
         try {
             HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
                     trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword, connectTimeout,
@@ -173,10 +211,35 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
             final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
                     .withAction(PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION)
+                    .withApi(IDENTITY)
                     .withVersion(defaultIfEmpty(version, DEFAULT_IDENTITY_VERSION))
                     .build();
 
-            Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder);
+            final Domain domain = buildDomain(domainId, domainName);
+
+            final User user = buildUser(domain, id, username, password);
+
+            final Password passwd = new Password.Builder()
+                    .withUser(user)
+                    .build();
+
+            List<String> methodsList = singletonList(AuthenticationMethod.PASSWORD.getValue());
+
+            final Identity identity = new Identity.Builder()
+                    .withMethods(methodsList)
+                    .withPassword(passwd)
+                    .build();
+
+            final Auth auth = new Auth.Builder()
+                    .withIdentity(identity)
+                    .build();
+
+            final IdentityInputsBuilder identityInputsBuilder = new IdentityInputsBuilder.Builder()
+                    .withAuth(auth)
+                    .withNoCatalog(noCatalog)
+                    .build();
+
+            Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder, identityInputsBuilder);
 
             String token = getHeaderValue(response.get(RESPONSE_HEADERS), X_SUBJECT_TOKEN);
             if (isNotBlank(token)) {

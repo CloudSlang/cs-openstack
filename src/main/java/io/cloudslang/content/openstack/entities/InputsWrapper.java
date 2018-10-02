@@ -3,16 +3,19 @@ package io.cloudslang.content.openstack.entities;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
+import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 
 public class InputsWrapper {
     private final ApiInputsBuilder apiInputsBuilder;
     private final CommonInputsBuilder commonInputsBuilder;
     private final HttpClientInputs httpClientInputs;
+    private final IdentityInputsBuilder identityInputsBuilder;
 
     private InputsWrapper(Builder builder) {
-        this.httpClientInputs = builder.httpClientInputs;
-        this.commonInputsBuilder = builder.commonInputsBuilder;
         this.apiInputsBuilder = builder.apiInputsBuilder;
+        this.commonInputsBuilder = builder.commonInputsBuilder;
+        this.httpClientInputs = builder.httpClientInputs;
+        this.identityInputsBuilder = builder.identityInputsBuilder;
     }
 
     public ApiInputsBuilder getApiInputsBuilder() {
@@ -27,10 +30,15 @@ public class InputsWrapper {
         return httpClientInputs;
     }
 
+    public IdentityInputsBuilder getIdentityInputsBuilder() {
+        return identityInputsBuilder;
+    }
+
     public static class Builder {
         private ApiInputsBuilder apiInputsBuilder;
         private CommonInputsBuilder commonInputsBuilder;
         private HttpClientInputs httpClientInputs;
+        private IdentityInputsBuilder identityInputsBuilder;
 
         public InputsWrapper build() {
             return new InputsWrapper(this);
@@ -48,6 +56,11 @@ public class InputsWrapper {
 
         public Builder withHttpClientInputs(HttpClientInputs httpClientInputs) {
             this.httpClientInputs = httpClientInputs;
+            return this;
+        }
+
+        public Builder withIdentityInputs(IdentityInputsBuilder identityInputsBuilder) {
+            this.identityInputsBuilder = identityInputsBuilder;
             return this;
         }
     }

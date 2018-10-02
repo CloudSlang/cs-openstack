@@ -13,6 +13,7 @@ import static io.cloudslang.content.openstack.builders.PayloadBuilder.buildPaylo
 import static io.cloudslang.content.openstack.factory.HeadersFactory.setHeaders;
 import static io.cloudslang.content.openstack.factory.InputsWrapperFactory.buildWrapper;
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildUrl;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class OpenstackService {
     @SafeVarargs
@@ -21,8 +22,12 @@ public class OpenstackService {
 
         httpClientInputs.setUrl(buildUrl(wrapper));
 
+        String payload = buildPayload(wrapper);
+        if (isNotBlank(payload)) {
+            httpClientInputs.setBody(buildPayload(wrapper));
+        }
+
         setHeaders(wrapper);
-        buildPayload(wrapper);
 
         return new HttpClientService().execute(httpClientInputs);
     }

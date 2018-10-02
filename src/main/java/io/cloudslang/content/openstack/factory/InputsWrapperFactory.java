@@ -4,6 +4,7 @@ import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
+import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 
 public class InputsWrapperFactory {
     private InputsWrapperFactory() {
@@ -16,6 +17,14 @@ public class InputsWrapperFactory {
                 if (builder instanceof ApiInputsBuilder) {
                     return new InputsWrapper.Builder()
                             .withApiInputs((ApiInputsBuilder) builder)
+                            .withCommonInputs(commonInputsBuilder)
+                            .withHttpClientInputs(httpClientInputs)
+                            .build();
+                }
+
+                if (builder instanceof IdentityInputsBuilder) {
+                    return new InputsWrapper.Builder()
+                            .withIdentityInputs((IdentityInputsBuilder) builder)
                             .withCommonInputs(commonInputsBuilder)
                             .withHttpClientInputs(httpClientInputs)
                             .build();
