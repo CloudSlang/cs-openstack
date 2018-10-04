@@ -1,6 +1,7 @@
 package io.cloudslang.content.openstack.utils;
 
 import io.cloudslang.content.openstack.compute.entities.ComputeApi;
+import io.cloudslang.content.openstack.compute.entities.ServersApi;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.identity.entities.AuthenticationMethod;
@@ -75,6 +76,10 @@ public class InputsUtil {
         } else if (safeCastOrNull(e, IdentityApi.class) != null) {
             sb
                     .append(((IdentityApi) e).getValue())
+                    .append(delimiter);
+        } else if (safeCastOrNull(e, ServersApi.class) != null) {
+            sb
+                    .append(((ServersApi) e).getValue())
                     .append(delimiter);
         }
     }

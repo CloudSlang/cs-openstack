@@ -21,7 +21,6 @@ import static io.cloudslang.content.constants.OutputNames.RETURN_CODE;
 import static io.cloudslang.content.constants.OutputNames.RETURN_RESULT;
 import static io.cloudslang.content.constants.ResponseNames.FAILURE;
 import static io.cloudslang.content.constants.ResponseNames.SUCCESS;
-import static io.cloudslang.content.httpclient.build.auth.AuthTypes.ANONYMOUS;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.CONNECT_TIMEOUT;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.KEEP_ALIVE;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.KEYSTORE;
@@ -46,7 +45,6 @@ import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSI
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class GetApiVersionDetails {
     /**

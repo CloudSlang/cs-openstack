@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 public class InputsUtilTest {
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void shouldThrowOpenstackExceptionWithSpecificErrorMessage() throws OpenstackException {

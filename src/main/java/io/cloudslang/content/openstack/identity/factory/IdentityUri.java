@@ -9,7 +9,6 @@ import static io.cloudslang.content.openstack.identity.entities.IdentityApi.AUTH
 import static io.cloudslang.content.openstack.identity.entities.IdentityApi.CATALOG;
 import static io.cloudslang.content.openstack.identity.entities.IdentityApi.PROJECTS;
 import static io.cloudslang.content.openstack.identity.entities.IdentityApi.TOKENS;
-import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class IdentityUri {

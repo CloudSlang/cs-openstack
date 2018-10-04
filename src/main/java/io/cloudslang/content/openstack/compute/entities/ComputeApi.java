@@ -18,7 +18,7 @@ public enum ComputeApi {
 
     static {
         stream(values())
-                .forEach(a -> API_MAP.put(a.name().toLowerCase(), a.getValue()));
+                .forEach(e -> API_MAP.put(e.name().toLowerCase(), e.getValue()));
     }
 
     private final String value;

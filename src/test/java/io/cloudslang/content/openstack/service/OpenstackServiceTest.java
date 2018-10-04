@@ -34,7 +34,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 @PrepareForTest({HttpClientService.class, OpenstackService.class})
 public class OpenstackServiceTest {
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public final ExpectedException exception = ExpectedException.none();
 
     @Mock
     private HttpClientService httpClientServiceMock;

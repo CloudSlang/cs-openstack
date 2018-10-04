@@ -4,7 +4,6 @@ import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.builders.ApiInputsBuilder;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
-import io.cloudslang.content.openstack.identity.entities.Identity;
 import org.junit.rules.ExpectedException;
 
 public class TestsUtil {
