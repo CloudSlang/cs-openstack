@@ -1,4 +1,4 @@
-package io.cloudslang.content.openstack.compute.factory.api;
+package io.cloudslang.content.openstack.compute.factory;
 
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 

@@ -37,7 +37,7 @@ public class InputsUtilTest {
 
     @Test
     public void shouldReturnValidEndpoint() throws MalformedURLException, OpenstackException {
-        assertEquals("https://www.example.com:8080/compute/v2.0/",
-                buildUrl(getInputsWrapper("https://www.example.com:8080", "api", "", "ListAllMajorVersions")));
+        assertEquals("https://www.example.com:8774/compute/v2.0/",
+                buildUrl(getInputsWrapper("https://www.example.com", "api", "v2.0", "ListAllMajorVersions")));
     }
 }

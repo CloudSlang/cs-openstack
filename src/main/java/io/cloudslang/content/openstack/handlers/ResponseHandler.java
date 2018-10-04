@@ -5,12 +5,19 @@ import com.google.gson.GsonBuilder;
 import io.cloudslang.content.openstack.compute.responses.api.ListAllMajorVersionsResponse;
 import io.cloudslang.content.openstack.identity.responses.AuthenticationResponse;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
+import static io.cloudslang.content.httpclient.services.HttpClientService.RESPONSE_HEADERS;
+import static io.cloudslang.content.openstack.entities.Constants.Headers.X_OPENSTACK_REQUEST_ID;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.BLANK_SPACE;
+import static io.cloudslang.content.openstack.entities.Constants.Responses.REQUEST_TRACKING_ID;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.TOKEN;
+import static io.cloudslang.content.openstack.utils.InputsUtil.isVersionGreaterOrEqualThanThreshold;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -33,7 +40,18 @@ public class ResponseHandler {
         return EMPTY;
     }
 
-    public static String getHeaderValue(String input, String headerName) {
+    public static void gatherAdditionalResponseInfo(String baseVersion, Map<String, String> response) {
+        String token = getHeaderValue(response.get(RESPONSE_HEADERS), X_SUBJECT_TOKEN);
+        if (isNotBlank(token)) {
+            response.put(TOKEN, token);
+        }
+
+        if (isVersionGreaterOrEqualThanThreshold(baseVersion)) {
+            response.put(REQUEST_TRACKING_ID, getHeaderValue(response.get(RESPONSE_HEADERS), X_OPENSTACK_REQUEST_ID));
+        }
+    }
+
+    static String getHeaderValue(String input, String headerName) {
         return isNotBlank(headerName) ?
                 Pattern.compile("\\n")
                         .splitAsStream(input)

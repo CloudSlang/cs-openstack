@@ -38,11 +38,13 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COO
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.LIST_ALL_MAJOR_VERSIONS;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_COMPUTE_VERSION;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
 import static io.cloudslang.content.openstack.handlers.ResponseHandler.handleResponse;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
@@ -152,13 +154,13 @@ public class ListAllMajorVersions {
         try {
             HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
                     trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
-                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME, ANONYMOUS, APPLICATION_JSON.getMimeType());
+                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
             final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
                     .withAction(LIST_ALL_MAJOR_VERSIONS)
-                    .withApi(EMPTY)
-                    .withVersion(version)
+                    .withApi(API)
+                    .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
                     .build();
 
             Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder);

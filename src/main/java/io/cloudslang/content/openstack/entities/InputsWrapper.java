@@ -2,7 +2,7 @@ package io.cloudslang.content.openstack.entities;
 
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
-import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
+import io.cloudslang.content.openstack.compute.builders.ApiInputsBuilder;
 import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 
 public class InputsWrapper {

@@ -5,6 +5,8 @@ public class Constants {
     }
 
     public static class Actions {
+        public static final String GET_AVAILABLE_PROJECT_SCOPES = "GetAvailableProjectScopes";
+        public static final String GET_SERVICE_CATALOG = "GetServiceCatalog";
         public static final String PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION = "PasswordAuthenticationWithUnscopedAuthorization";
     }
 

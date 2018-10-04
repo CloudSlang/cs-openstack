@@ -1,8 +1,10 @@
 package io.cloudslang.content.openstack;
 
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
-import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
+import io.cloudslang.content.openstack.compute.builders.ApiInputsBuilder;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
+import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
+import io.cloudslang.content.openstack.identity.entities.Identity;
 import org.junit.rules.ExpectedException;
 
 public class TestsUtil {
@@ -33,6 +35,12 @@ public class TestsUtil {
     public static ApiInputsBuilder getApiInputs(String version) {
         return new ApiInputsBuilder.Builder()
                 .withApiVersion(version)
+                .build();
+    }
+
+    public static IdentityInputsBuilder getIdentityInputs(String input) {
+        return new IdentityInputsBuilder.Builder()
+                .withNoCatalog(input)
                 .build();
     }
 }

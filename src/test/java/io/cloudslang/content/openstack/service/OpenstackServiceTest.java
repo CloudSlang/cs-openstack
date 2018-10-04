@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import static io.cloudslang.content.openstack.TestsUtil.getApiInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getCommonInputs;
+import static io.cloudslang.content.openstack.TestsUtil.getIdentityInputs;
 import static io.cloudslang.content.openstack.TestsUtil.setExpectedExceptions;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static org.junit.Assert.assertEquals;
@@ -50,14 +51,14 @@ public class OpenstackServiceTest {
 
         httpClientInputs = buildHttpClientInputs("", "", "", "", "",
                 "", "", "", "", "", "",
-                "", "", "", "", "", "");
+                "", "", "", "");
 
         toTest = new OpenstackService();
     }
 
     @Test
     public void shouldFailWhenIncorrectEndpoint() throws MalformedURLException, OpenstackException {
-        setExpectedExceptions(MalformedURLException.class, exception, "no protocol: not a valid endpoint/");
+        setExpectedExceptions(MalformedURLException.class, exception, "no protocol: not a valid endpoint");
 
         toTest.execute(httpClientInputs, getCommonInputs("not a valid endpoint", "no matter what", "no matter what", "no matter what"));
     }
@@ -70,32 +71,34 @@ public class OpenstackServiceTest {
     }
 
     @Test
-    public void shouldFallbackWhenNoVersionComputeApi() throws MalformedURLException, OpenstackException {
-        toTest.execute(httpClientInputs, getCommonInputs("http://example.com:8080", "servers", "", "no matter what"));
+    public void shouldMakeHttpCallWhenGetApiVersionDetails() throws MalformedURLException, OpenstackException {
+        toTest.execute(httpClientInputs, getCommonInputs("http://example.com", "api", "v2.5", "GetApiVersionDetails"), getApiInputs("v2.1"));
 
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
         verifyNoMoreInteractions(httpClientServiceMock);
 
-        assertEquals("http://example.com:8080/compute/servers/v2.0/", httpClientInputs.getUrl());
+        assertEquals("http://example.com:8774/compute/v2.5/v2.1", httpClientInputs.getUrl());
     }
 
     @Test
     public void shouldMakeHttpCallWhenListAllMajorVersions() throws MalformedURLException, OpenstackException {
-        toTest.execute(httpClientInputs, getCommonInputs("http://mycompute.pvt:8080", "api", "v3.0", "ListAllMajorVersions"));
+        toTest.execute(httpClientInputs, getCommonInputs("http://mycompute.pvt", "api", "v2.0", "ListAllMajorVersions"));
 
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
         verifyNoMoreInteractions(httpClientServiceMock);
 
-        assertEquals("http://mycompute.pvt:8080/compute/v3.0/", httpClientInputs.getUrl());
+        assertEquals("http://mycompute.pvt:8774/compute/v2.0/", httpClientInputs.getUrl());
     }
 
     @Test
-    public void shouldMakeHttpCallWhenGetApiVersionDetails() throws MalformedURLException, OpenstackException {
-        toTest.execute(httpClientInputs, getCommonInputs("https://example.com:9090", "api", "v2.1", "GetApiVersionDetails"), getApiInputs(""));
+    public void shouldMakeHttpCallWhenUnscopedPasswordAuth() throws MalformedURLException, OpenstackException {
+        toTest.execute(httpClientInputs,
+                getCommonInputs("https://example.com", "identity", "v3", "PasswordAuthenticationWithUnscopedAuthorization"),
+                getIdentityInputs(""));
 
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
         verifyNoMoreInteractions(httpClientServiceMock);
 
-        assertEquals("https://example.com:9090/compute/v2.1/", httpClientInputs.getUrl());
+        assertEquals("https://example.com:5000/v3/auth/tokens", httpClientInputs.getUrl());
     }
 }

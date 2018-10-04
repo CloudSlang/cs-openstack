@@ -2,14 +2,17 @@ package io.cloudslang.content.openstack.builders;
 
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 
+import static io.cloudslang.content.httpclient.build.auth.AuthTypes.ANONYMOUS;
 import static io.cloudslang.content.openstack.entities.Constants.Values.DEFAULT_TIMEOUT_VALUE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpClientInputsBuilder {
     private HttpClientInputsBuilder() {
@@ -19,8 +22,10 @@ public class HttpClientInputsBuilder {
                                                          String trustAllRoots, String x509HostnameVerifier, String trustKeystore,
                                                          String trustPassword, String keystore, String keystorePassword,
                                                          String connectTimeout, String socketTimeout, String useCookies,
-                                                         String keepAlive, String method, String authType, String contentType) {
+                                                         String keepAlive, String method) {
         HttpClientInputs httpClientInputs = new HttpClientInputs();
+
+        httpClientInputs.setMethod(method);
 
         if (isNotBlank(proxyHost) && isNotBlank(proxyPort)) {
             httpClientInputs.setProxyHost(proxyHost);
@@ -55,9 +60,9 @@ public class HttpClientInputsBuilder {
         httpClientInputs.setKeepAlive(defaultIfEmpty(keepAlive, valueOf(TRUE)));
         httpClientInputs.setQueryParamsAreURLEncoded(valueOf(FALSE));
 
-        httpClientInputs.setMethod(method);
-        httpClientInputs.setAuthType(authType);
-        httpClientInputs.setContentType(contentType);
+        httpClientInputs.setAuthType(ANONYMOUS);
+        httpClientInputs.setContentType(APPLICATION_JSON.getMimeType());
+        httpClientInputs.setRequestCharacterSet(UTF_8);
 
         return httpClientInputs;
     }

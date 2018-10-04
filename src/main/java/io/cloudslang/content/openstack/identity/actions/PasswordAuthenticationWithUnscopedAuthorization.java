@@ -29,7 +29,6 @@ import static io.cloudslang.content.constants.OutputNames.RETURN_CODE;
 import static io.cloudslang.content.constants.OutputNames.RETURN_RESULT;
 import static io.cloudslang.content.constants.ResponseNames.FAILURE;
 import static io.cloudslang.content.constants.ResponseNames.SUCCESS;
-import static io.cloudslang.content.httpclient.build.auth.AuthTypes.ANONYMOUS;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.CONNECT_TIMEOUT;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.KEEP_ALIVE;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.KEYSTORE;
@@ -47,15 +46,13 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HO
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
-import static io.cloudslang.content.openstack.handlers.ResponseHandler.getHeaderValue;
+import static io.cloudslang.content.openstack.handlers.ResponseHandler.gatherAdditionalResponseInfo;
 import static io.cloudslang.content.openstack.handlers.ResponseHandler.handleResponse;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Actions.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Api.IDENTITY;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
 import static io.cloudslang.content.openstack.identity.entities.Constants.QueryParams.NO_CATALOG;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.EXPIRES_AT;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.NEVER;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.TOKEN;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Versions.DEFAULT_IDENTITY_VERSION;
 import static io.cloudslang.content.openstack.identity.entities.Inputs.DOMAIN_ID;
 import static io.cloudslang.content.openstack.identity.entities.Inputs.DOMAIN_NAME;
@@ -69,7 +66,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.http.client.methods.HttpPost.METHOD_NAME;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class PasswordAuthenticationWithUnscopedAuthorization {
     private static final String RESPONSE_HEADERS = "responseHeaders";
@@ -208,13 +204,15 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
         try {
             HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
                     trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword, connectTimeout,
-                    socketTimeout, useCookies, keepAlive, METHOD_NAME, ANONYMOUS, APPLICATION_JSON.getMimeType());
+                    socketTimeout, useCookies, keepAlive, METHOD_NAME);
+
+            String baseVersion = defaultIfEmpty(version, DEFAULT_IDENTITY_VERSION);
 
             final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
                     .withAction(PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION)
                     .withApi(IDENTITY)
-                    .withVersion(defaultIfEmpty(version, DEFAULT_IDENTITY_VERSION))
+                    .withVersion(baseVersion)
                     .build();
 
             final Domain domain = buildDomain(domainId, domainName);
@@ -243,21 +241,21 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
 
             Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder, identityInputsBuilder);
 
-            String token = getHeaderValue(response.get(RESPONSE_HEADERS), X_SUBJECT_TOKEN);
-            if (isNotBlank(token)) {
-                response.put(TOKEN, token);
-            }
-
-            String expiresAt = handleResponse(response.get(RETURN_RESULT), AuthenticationResponse.class);
-            if (isNotBlank(expiresAt)) {
-                response.put(EXPIRES_AT, expiresAt);
-            } else {
-                response.put(EXPIRES_AT, NEVER);
-            }
+            gatherAdditionalResponseInfo(baseVersion, response);
+            gatherExpiresAt(response);
 
             return response;
         } catch (MalformedURLException | OpenstackException exception) {
             return getFailureResultsMap(exception);
+        }
+    }
+
+    private void gatherExpiresAt(Map<String, String> response) {
+        String expiresAt = handleResponse(response.get(RETURN_RESULT), AuthenticationResponse.class);
+        if (isNotBlank(expiresAt)) {
+            response.put(EXPIRES_AT, expiresAt);
+        } else {
+            response.put(EXPIRES_AT, NEVER);
         }
     }
 }

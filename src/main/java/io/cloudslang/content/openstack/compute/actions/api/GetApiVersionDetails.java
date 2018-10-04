@@ -9,7 +9,7 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
-import io.cloudslang.content.openstack.compute.builders.api.ApiInputsBuilder;
+import io.cloudslang.content.openstack.compute.builders.ApiInputsBuilder;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.service.OpenstackService;
 
@@ -39,10 +39,12 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HO
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.GET_API_VERSION_DETAILS;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_COMPUTE_VERSION;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Api.API_VERSION;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
@@ -153,13 +155,13 @@ public class GetApiVersionDetails {
         try {
             HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
                     trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
-                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME, ANONYMOUS, APPLICATION_JSON.getMimeType());
+                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
             final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
                     .withAction(GET_API_VERSION_DETAILS)
                     .withApi(API)
-                    .withVersion(version)
+                    .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
                     .build();
 
             final ApiInputsBuilder apiInputsBuilder = new ApiInputsBuilder.Builder()

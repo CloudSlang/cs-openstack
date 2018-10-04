@@ -12,6 +12,10 @@ import static java.util.Arrays.stream;
 
 public enum IdentityApi {
     AUTH("auth"),
+    CATALOG("catalog"),
+    DOMAINS("domains"),
+    PROJECTS("projects"),
+    SYSTEM("system"),
     TOKENS("tokens");
 
     private static final Map<String, String> IDENTITY_API_MAP = new HashMap<>();
