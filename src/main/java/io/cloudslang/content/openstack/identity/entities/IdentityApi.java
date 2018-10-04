@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.cloudslang.content.openstack.utils.InputsUtil.getEnumValidValuesString;
+import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
@@ -39,6 +39,6 @@ public enum IdentityApi {
         return Optional
                 .ofNullable(IDENTITY_API_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Identity Api: '%s'. Valid values: '%s'.",
-                        input, getEnumValidValuesString(IdentityApi.class))));
+                        input, buildErrorMessage(IdentityApi.class))));
     }
 }

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.cloudslang.content.openstack.utils.InputsUtil.getEnumValidValuesString;
+import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
@@ -35,6 +35,6 @@ public enum AuthenticationMethod {
         return Optional
                 .ofNullable(AUTHENTICATION_METHOD_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Openstack authentication method: '%s'. Valid values: '%s'.",
-                        input, getEnumValidValuesString(AuthenticationMethod.class))));
+                        input, buildErrorMessage(AuthenticationMethod.class))));
     }
 }

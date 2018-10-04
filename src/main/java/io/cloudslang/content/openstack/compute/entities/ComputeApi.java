@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.cloudslang.content.openstack.utils.InputsUtil.getEnumValidValuesString;
+import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
@@ -35,6 +35,6 @@ public enum ComputeApi {
         return Optional
                 .ofNullable(API_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Compute Api: '%s'. Valid values: '%s'.",
-                        input, getEnumValidValuesString(ComputeApi.class))));
+                        input, buildErrorMessage(ComputeApi.class))));
     }
 }
