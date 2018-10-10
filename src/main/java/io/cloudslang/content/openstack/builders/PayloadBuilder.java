@@ -17,7 +17,9 @@ public class PayloadBuilder {
 
     public static String buildPayload(InputsWrapper wrapper) {
         if (METHOD_NAME.equals(wrapper.getHttpClientInputs().getMethod())) {
-            switch (wrapper.getCommonInputsBuilder().getAction()) {
+            final String action = wrapper.getCommonInputsBuilder().getAction();
+
+            switch (action) {
                 case PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION:
                     return GSON.toJson(new TokenRequest(wrapper.getIdentityInputsBuilder().getAuth()), TokenRequest.class);
                 default:

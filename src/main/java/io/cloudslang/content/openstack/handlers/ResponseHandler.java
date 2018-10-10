@@ -17,7 +17,7 @@ import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.B
 import static io.cloudslang.content.openstack.entities.Constants.Responses.REQUEST_TRACKING_ID;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.TOKEN;
-import static io.cloudslang.content.openstack.utils.InputsUtil.isVersionGreaterOrEqualThanThreshold;
+import static io.cloudslang.content.openstack.validators.Validators.isVersionGreaterOrEqualThanThreshold;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;

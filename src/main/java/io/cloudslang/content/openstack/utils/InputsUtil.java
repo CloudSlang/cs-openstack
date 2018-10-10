@@ -1,7 +1,11 @@
 package io.cloudslang.content.openstack.utils;
 
 import io.cloudslang.content.openstack.compute.entities.ComputeApi;
-import io.cloudslang.content.openstack.compute.entities.ServersApi;
+import io.cloudslang.content.openstack.compute.entities.servers.AutoDiskConfig;
+import io.cloudslang.content.openstack.compute.entities.servers.LockedBy;
+import io.cloudslang.content.openstack.compute.entities.servers.PowerState;
+import io.cloudslang.content.openstack.compute.entities.servers.ServersApi;
+import io.cloudslang.content.openstack.compute.entities.servers.VmState;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.identity.entities.AuthenticationMethod;
@@ -16,15 +20,13 @@ import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.BLANK_SPACE;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.COLON;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.SLASH;
-import static io.cloudslang.content.openstack.entities.Constants.Values.VERSION_THRESHOLD_FLOAT;
 import static io.cloudslang.content.openstack.factory.PrefixFactory.getApiPrefix;
 import static io.cloudslang.content.openstack.factory.UriFactory.getUri;
-import static java.lang.Float.parseFloat;
+import static java.lang.String.valueOf;
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class InputsUtil {
     private InputsUtil() {
@@ -38,18 +40,6 @@ public class InputsUtil {
         sj.add(getApiPrefix(wrapper));
 
         return appendIfMissing(sj.toString(), SLASH) + getUri(wrapper);
-    }
-
-    public static boolean isVersionGreaterOrEqualThanThreshold(String input) {
-        if (isNotBlank(input)) {
-            try {
-                return parseFloat(input) >= VERSION_THRESHOLD_FLOAT; // micro-version threshold for tracking requests
-            } catch (NumberFormatException nfe) {
-                return false;
-            }
-        }
-
-        return false;
     }
 
     public static <E extends Enum<E>> String buildErrorMessage(Class<E> classOfT) {
@@ -69,6 +59,10 @@ public class InputsUtil {
             sb
                     .append(((ComputeApi) e).getValue())
                     .append(delimiter);
+        } else if (safeCastOrNull(e, AutoDiskConfig.class) != null) {
+            sb
+                    .append(((AutoDiskConfig) e).getValue())
+                    .append(delimiter);
         } else if (safeCastOrNull(e, AuthenticationMethod.class) != null) {
             sb
                     .append(((AuthenticationMethod) e).getValue())
@@ -80,6 +74,22 @@ public class InputsUtil {
         } else if (safeCastOrNull(e, ServersApi.class) != null) {
             sb
                     .append(((ServersApi) e).getValue())
+                    .append(delimiter);
+        } else if (safeCastOrNull(e, AutoDiskConfig.class) != null) {
+            sb
+                    .append(((AutoDiskConfig) e).getValue())
+                    .append(delimiter);
+        } else if (safeCastOrNull(e, LockedBy.class) != null) {
+            sb
+                    .append(((LockedBy) e).getValue())
+                    .append(delimiter);
+        } else if (safeCastOrNull(e, PowerState.class) != null) {
+            sb
+                    .append(valueOf(((PowerState) e).getValue()))
+                    .append(delimiter);
+        } else if (safeCastOrNull(e, VmState.class) != null) {
+            sb
+                    .append(e.name().toLowerCase())
                     .append(delimiter);
         }
     }

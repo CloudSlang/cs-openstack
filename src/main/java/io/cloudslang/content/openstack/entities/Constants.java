@@ -13,7 +13,12 @@ public class Constants {
     public static class Miscellaneous {
         public static final String BLANK_SPACE = " ";
         public static final String COLON = ":";
+        public static final String QUESTION_MARK = "?";
         public static final String SLASH = "/";
+    }
+
+    public static class Patterns {
+        public static final String HOST_PATTERN = "([^\\[/?#:]*|\\[[\\p{XDigit}\\:\\.]*[%\\p{Alnum}]*\\])";
     }
 
     public static class Responses {
@@ -22,6 +27,7 @@ public class Constants {
 
     public static class Values {
         public static final String DEFAULT_TIMEOUT_VALUE = "0";
+        public static final String ISO8601_PATTERN = "CCYY-MM-DDThh:mm:ss±hh:mm";
         public static final float VERSION_THRESHOLD_FLOAT = 2.46f;
     }
 }

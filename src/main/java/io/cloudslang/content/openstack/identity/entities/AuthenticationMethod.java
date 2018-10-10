@@ -17,8 +17,7 @@ public enum AuthenticationMethod {
     private static final Map<String, String> AUTHENTICATION_METHOD_MAP = new HashMap<>();
 
     static {
-        stream(values())
-                .forEach(a -> AUTHENTICATION_METHOD_MAP.put(a.name().toLowerCase(), a.getValue()));
+        stream(values()).forEach(a -> AUTHENTICATION_METHOD_MAP.put(a.name().toLowerCase(), a.getValue()));
     }
 
     private final String value;

@@ -42,7 +42,7 @@ public class OpenstackServiceTest {
     private HttpClientInputs httpClientInputs;
 
     @InjectMocks
-    private OpenstackService toTest;
+    private OpenstackService toTest = new OpenstackService();
 
     @Before
     public void init() throws Exception {

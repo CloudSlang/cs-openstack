@@ -1,4 +1,4 @@
-package io.cloudslang.content.openstack.compute.entities;
+package io.cloudslang.content.openstack.compute.entities.servers;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
@@ -27,8 +27,7 @@ public enum ServersApi {
     private static final Map<String, String> SERVERS_API_MAP = new HashMap<>();
 
     static {
-        stream(values())
-                .forEach(s -> SERVERS_API_MAP.put(s.name().toLowerCase(), s.getValue()));
+        stream(values()).forEach(s -> SERVERS_API_MAP.put(s.name().toLowerCase(), s.getValue()));
     }
 
     private final String value;

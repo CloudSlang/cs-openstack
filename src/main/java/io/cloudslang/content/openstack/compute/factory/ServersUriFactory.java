@@ -3,8 +3,8 @@ package io.cloudslang.content.openstack.compute.factory;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 
 import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.LIST_SERVERS_DETAILED;
-import static io.cloudslang.content.openstack.compute.entities.ServersApi.ACTION;
-import static io.cloudslang.content.openstack.compute.entities.ServersApi.DETAIL;
+import static io.cloudslang.content.openstack.compute.entities.servers.ServersApi.ACTION;
+import static io.cloudslang.content.openstack.compute.entities.servers.ServersApi.DETAIL;
 
 public class ServersUriFactory {
     private ServersUriFactory() {

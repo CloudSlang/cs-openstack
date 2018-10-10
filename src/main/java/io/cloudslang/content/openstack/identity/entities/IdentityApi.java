@@ -21,8 +21,7 @@ public enum IdentityApi {
     private static final Map<String, String> IDENTITY_API_MAP = new HashMap<>();
 
     static {
-        stream(values())
-                .forEach(a -> IDENTITY_API_MAP.put(a.name().toLowerCase(), a.getValue()));
+        stream(values()).forEach(a -> IDENTITY_API_MAP.put(a.name().toLowerCase(), a.getValue()));
     }
 
     private final String value;

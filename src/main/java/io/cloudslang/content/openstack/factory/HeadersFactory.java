@@ -13,7 +13,7 @@ import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API
 import static io.cloudslang.content.openstack.entities.Constants.Headers.REQUEST_ID_HEADER_PREFIX;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.X_AUTH_TOKEN;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.X_OPENSTACK_REQUEST_ID;
-import static io.cloudslang.content.openstack.utils.InputsUtil.isVersionGreaterOrEqualThanThreshold;
+import static io.cloudslang.content.openstack.validators.Validators.isVersionGreaterOrEqualThanThreshold;
 import static java.lang.String.join;
 import static java.util.UUID.randomUUID;
 
