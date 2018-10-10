@@ -1,7 +1,7 @@
 package io.cloudslang.content.openstack.compute.responses.api;
 
 import com.google.gson.annotations.SerializedName;
-import io.cloudslang.content.openstack.compute.entities.api.Link;
+import io.cloudslang.content.openstack.compute.entities.Link;
 import io.cloudslang.content.openstack.compute.entities.api.Version;
 
 import java.util.List;

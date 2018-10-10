@@ -59,7 +59,7 @@ public class Validators {
         return new InetAddressValidator().isValidInet6Address(input);
     }
 
-    private static boolean bothValuesArePresent(String input1, String input2) {
+    public static boolean bothValuesArePresent(String input1, String input2) {
         return isNotBlank(input1) && isNotBlank(input2) ? TRUE : FALSE;
     }
 

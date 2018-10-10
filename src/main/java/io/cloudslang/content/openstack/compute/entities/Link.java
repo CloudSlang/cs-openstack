@@ -1,4 +1,4 @@
-package io.cloudslang.content.openstack.compute.entities.api;
+package io.cloudslang.content.openstack.compute.entities;
 
 import java.util.Objects;
 

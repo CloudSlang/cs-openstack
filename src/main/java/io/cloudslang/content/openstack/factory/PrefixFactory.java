@@ -27,7 +27,7 @@ public class PrefixFactory {
             case IDENTITY:
                 return join(new String[]{IDENTITY_PORT, baseVersion}, SLASH);
             case SERVERS:
-                return join(new String[]{COMPUTE_PORT, COMPUTE_URI, ComputeApi.SERVERS.getValue(), baseVersion}, SLASH);
+                return join(new String[]{COMPUTE_PORT, COMPUTE_URI, baseVersion, ComputeApi.SERVERS.getValue()}, SLASH);
             default:
                 return EMPTY;
         }

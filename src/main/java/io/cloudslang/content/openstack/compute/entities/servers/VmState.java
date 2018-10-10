@@ -27,7 +27,7 @@ public enum VmState {
     private static final Set<String> VM_STATE_SET = new HashSet<>();
 
     static {
-        stream(values()).forEach(e -> VM_STATE_SET.add(e.name().toLowerCase()));
+        stream(values()).forEach(e -> VM_STATE_SET.add(e.name()));
     }
 
     public static String fromString(String input) throws OpenstackException {

@@ -53,6 +53,14 @@ public class InputsUtil {
         return isBlank(errorMessage) ? EMPTY : errorMessage.substring(0, errorMessage.length() - 2);
     }
 
+    @SuppressWarnings({"unchecked"})
+    public static <T, E> E safeCastOrNull(final T value, final Class<E> targetType) {
+        return targetType == null || !targetType.isInstance(value) ? null :
+                Optional
+                        .of((E) value)
+                        .get();
+    }
+
     @SuppressWarnings("SameParameterValue")
     private static <E extends Enum<E>> void concatenate(StringBuilder sb, E e, String delimiter) {
         if (safeCastOrNull(e, ComputeApi.class) != null) {
@@ -92,13 +100,5 @@ public class InputsUtil {
                     .append(e.name().toLowerCase())
                     .append(delimiter);
         }
-    }
-
-    @SuppressWarnings({"unchecked"})
-    private static <T, E> E safeCastOrNull(final T value, final Class<E> targetType) {
-        return targetType == null || !targetType.isInstance(value) ? null :
-                Optional
-                        .of((E) value)
-                        .get();
     }
 }

@@ -3,6 +3,7 @@ package io.cloudslang.content.openstack.handlers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.cloudslang.content.openstack.compute.responses.api.ListAllMajorVersionsResponse;
+import io.cloudslang.content.openstack.compute.responses.servers.ListServersResponse;
 import io.cloudslang.content.openstack.identity.responses.AuthenticationResponse;
 
 import java.util.Map;
@@ -12,14 +13,15 @@ import java.util.regex.Pattern;
 
 import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
 import static io.cloudslang.content.httpclient.services.HttpClientService.RESPONSE_HEADERS;
+import static io.cloudslang.content.openstack.entities.Constants.Headers.TOKEN;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.X_OPENSTACK_REQUEST_ID;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.BLANK_SPACE;
 import static io.cloudslang.content.openstack.entities.Constants.Responses.REQUEST_TRACKING_ID;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
-import static io.cloudslang.content.openstack.identity.entities.Constants.Responses.TOKEN;
 import static io.cloudslang.content.openstack.validators.Validators.isVersionGreaterOrEqualThanThreshold;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -30,11 +32,16 @@ public class ResponseHandler {
     }
 
     public static <T> String handleResponse(String input, Class<T> classOfT) {
-        if (isNotBlank(input) && ListAllMajorVersionsResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
-            //noinspection unchecked
+        if (isBlank(input)) {
+            return EMPTY;
+        }
+
+        if (ListAllMajorVersionsResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
             return handleApiResponse(GSON.fromJson(input, ListAllMajorVersionsResponse.class));
-        } else if (isNotBlank(input) && AuthenticationResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
+        } else if (AuthenticationResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
             return handleAuthenticationResponse(GSON.fromJson(input, AuthenticationResponse.class));
+        } else if (ListServersResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
+            return handleListServersResponse(GSON.fromJson(input, ListServersResponse.class));
         }
 
         return EMPTY;
@@ -71,6 +78,18 @@ public class ResponseHandler {
             listAllMajorVersionsResponse.getVersions().stream()
                     .filter(Objects::nonNull)
                     .forEach(version -> sb.append(version.getId()).append(join(COMMA_DELIMITER, BLANK_SPACE)));
+        }
+
+        return isNotBlank(sb.toString()) ? sb.deleteCharAt(sb.length() - 2).toString().trim() : EMPTY;
+    }
+
+    private static String handleListServersResponse(ListServersResponse listServersResponse) {
+        StringBuilder sb = new StringBuilder();
+
+        if (listServersResponse != null) {
+            listServersResponse.getServers().stream()
+                    .filter(Objects::nonNull)
+                    .forEach(server -> sb.append(server.getName()).append(join(COMMA_DELIMITER, BLANK_SPACE)));
         }
 
         return isNotBlank(sb.toString()) ? sb.deleteCharAt(sb.length() - 2).toString().trim() : EMPTY;

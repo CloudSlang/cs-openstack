@@ -27,7 +27,6 @@ public class Constants {
     public static class Responses {
         public static final String EXPIRES_AT = "expiresAt";
         public static final String NEVER = "never";
-        public static final String TOKEN = "token";
     }
 
     public static class Values {

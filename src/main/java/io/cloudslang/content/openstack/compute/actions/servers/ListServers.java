@@ -9,6 +9,8 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
+import io.cloudslang.content.openstack.compute.builders.ServersInputsBuilder;
+import io.cloudslang.content.openstack.compute.responses.servers.ListServersResponse;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.service.OpenstackService;
 
@@ -35,8 +37,8 @@ import static io.cloudslang.content.httpclient.entities.HttpClientInputs.TRUST_P
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.USE_COOKIES;
 import static io.cloudslang.content.httpclient.entities.HttpClientInputs.X509_HOSTNAME_VERIFIER;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.LIST_ALL_MAJOR_VERSIONS;
-import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.LIST_SERVERS;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Api.SERVERS;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_COMPUTE_VERSION;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.ACCESS_IP_V4;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.ACCESS_IP_V6;
@@ -83,13 +85,18 @@ import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.TE
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.USER_ID;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.UUID;
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.VM_STATE;
+import static io.cloudslang.content.openstack.entities.Constants.Headers.TOKEN;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
+import static io.cloudslang.content.openstack.handlers.ResponseHandler.handleResponse;
 import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
 
 public class ListServers {
+    private static final String AVAILABLE_SERVERS = "availableServers";
+
     /**
      * Lists IDs, names, and links for all servers.
      * <p>
@@ -211,6 +218,220 @@ public class ListServers {
      *                             Notes: The maximum microversion supported by each release varies.
      *                             Please reference: https://docs.openstack.org/nova/latest/reference/api-microversion-history.html
      *                             for API microversion history details.
+     * @param accessIpV4           Optional - Filter server list result by IPv4 address that should be used to access the
+     *                             server.
+     * @param accessIpV6           Optional - Filter server list result by IPv6 address that should be used to access the
+     *                             server.
+     * @param allTenants           Optional - Specify the all_tenants query parameter to list all instances for all projects.
+     *                             By default this is only allowed by administrators. If the value of this parameter is
+     *                             not specified, it is treated as True. If the value is specified, "1", "t", "true",
+     *                             "on", "y" and "yes" are treated as True. "0", "f", "false", "off", "n" and "no" are
+     *                             treated as False. (They are case-insensitive.)
+     *                             Valid values: "",  "1", "t", "true", "on", "y", "yes", "0", "f", "false", "off", "n",
+     *                             "no"
+     * @param autoDiskConfig       Optional - Filter the server list result by the disk_config setting of the server.
+     *                             This parameter is only valid when specified by administrators. If non-admin users
+     *                             specify this parameter, it is ignored.
+     *                             Valid values: "AUTO", "MANUAL"
+     *                             Default value: "AUTO"
+     * @param availabilityZone     Optional - Filter the server list result by server availability zone. This parameter
+     *                             is only valid when specified by administrators. If non-admin users specify this parameter,
+     *                             it is ignored.
+     * @param changesBefore        Optional - Filters the response by a date and time stamp when the server last changed.
+     *                             Those servers that changed before or equal to the specified date and time stamp are
+     *                             returned. To help keep track of changes this may also return recently deleted servers.
+     *                             The date and time stamp format is ISO 8601.
+     *                             Note: New in version 2.66
+     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
+     *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
+     *                             Example: 2015-08-27T09:49:58-05:00. If you omit the time zone, the UTC time zone is
+     *                             assumed.
+     * @param changesSince         Optional - Filters the response by a date and time stamp when the server last changed
+     *                             status. To help keep track of changes this may also return recently deleted servers.
+     *                             The date and time stamp format is ISO 8601.
+     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
+     *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
+     *                             Example: 2015-08-27T09:49:58-05:00.
+     *                             If you omit the time zone, the UTC time zone is assumed.
+     * @param configDrive          Optional - Filter the server list result by the config drive setting of the server.
+     *                             This parameter is only valid when specified by administrators. If non-admin users
+     *                             specify this parameter, it is ignored.
+     * @param createdAt            Optional - Filter the server list result by a date and time stamp when server was created.
+     *                             This parameter is only valid when specified by administrators. If non-admin users
+     *                             specify this parameter, it is ignored.
+     *                             The date and time stamp format is ISO 8601.
+     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
+     *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
+     *                             Example: 2015-08-27T09:49:58-05:00.
+     *                             If you omit the time zone, the UTC time zone is assumed.
+     * @param deleted              Optional - Show deleted items only. In some circumstances deleted items will still be
+     *                             accessible via the backend database, however there is no contract on how long, so this
+     *                             parameter should be used with caution. This parameter is only valid when specified by
+     *                             administrators. If non-admin users specify this parameter, it is ignored.
+     *                             Valid values: "1", "t", "true", "on", "y", "yes" are treated as True (case-insensitive).
+     *                             Other than them are treated as False.
+     * @param description          Optional - Filter the server list result by description.
+     *                             This parameter is only valid when specified by administrators. If non-admin users specify
+     *                             this parameter, it is ignored.
+     *                             Note: display_description can also be requested which is alias of description but that
+     *                             is not recommended to use as that will be removed in future.
+     * @param flavor               Optional - Filters the response by a flavor, as a UUID. A flavor is a combination of
+     *                             memory, disk size, and CPUs.
+     * @param host                 Optional - Filter the server list result by the host name of compute node.
+     *                             This parameter is only valid when specified by administrators. If non-admin users specify
+     *                             this parameter, it is ignored.
+     * @param hostname             Optional - Filter the server list result by the host name of server. This parameter is
+     *                             only valid when specified by administrators. If non-admin users specify this parameter,
+     *                             it is ignored.
+     * @param image                Optional - Filters the response by an image, as a UUID.
+     *                             Note: image_ref’ can also be requested which is alias of ‘image’ but that is not
+     *                             recommended to use as that will be removed in future.
+     * @param ip                   Optional - An IPv4 address to filter results by.
+     * @param ip6                  Optional - An IPv6 address to filter results by. Up to microversion 2.4, this parameter
+     *                             is only valid when specified by administrators. If non-admin users specify this parameter,
+     *                             it is ignored. Starting from microversion 2.5, this parameter is valid for no-admin users
+     *                             as well as administrators.
+     * @param kernelId             Optional - Filter the server list result by the UUID of the kernel image when using
+     *                             an AMI. This parameter is only valid when specified by administrators. If non-admin
+     *                             users specify this parameter, it is ignored.
+     * @param keyName              Optional - Filter the server list result by keypair name.
+     *                             This parameter is only valid when specified by administrators. If non-admin users specify
+     *                             this parameter, it is ignored.
+     * @param launchIndex          Optional - Filter the server list result by the sequence in which the servers were
+     *                             launched. This parameter is only valid when specified by administrators. If non-admin
+     *                             users specify this parameter, it is ignored.
+     * @param launchedAt           Optional - Filter the server list result by a date and time stamp when the instance
+     *                             was launched. The date and time stamp format is ISO 8601.
+     *                             This parameter is only valid when specified by administrators.
+     *                             If non-admin users specify this parameter, it is ignored.
+     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
+     *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
+     *                             Example: 2015-08-27T09:49:58-05:00.
+     *                             If you omit the time zone, the UTC time zone is assumed.
+     * @param limit                Optional - Requests a page size of items. Returns a number of items up to a limit value.
+     *                             Use the limit parameter to make an initial limited request and use the ID of the last-seen
+     *                             item from the response as the marker parameter value in a subsequent limited request.
+     * @param lockedBy             Optional - Filter the server list result by who locked the server, possible value could
+     *                             be admin or owner. This parameter is only valid when specified by administrators.
+     *                             If non-admin users specify this parameter, it is ignored.
+     * @param marker               Optional - The ID of the last-seen item. Use the limit parameter to make an initial
+     *                             limited request and use the ID of the last-seen item from the response as the marker
+     *                             parameter value in a subsequent limited request.
+     * @param name                 Optional - Filters the response by a server name, as a string. You can use regular
+     *                             expressions in the query. For example, the ?name=bob regular expression returns both
+     *                             bob and bobb. If you must match on only bob, you can use a regular expression that
+     *                             matches the syntax of the underlying database server that is implemented for Compute,
+     *                             such as MySQL or PostgreSQL.
+     *                             Note: ‘display_name’ can also be requested which is alias of ‘name’ but that is not
+     *                             recommended to use as that will be removed in future.
+     * @param node                 Optional - Filter the server list result by the node. This parameter is only valid when
+     *                             specified by administrators. If non-admin users specify this parameter, it is ignored.
+     * @param powerState           Optional - Filter the server list result by server power state.
+     *                             Possible values are integer values that is mapped as:
+     *                             0: NOSTATE
+     *                             1: RUNNING
+     *                             3: PAUSED
+     *                             4: SHUTDOWN
+     *                             6: CRASHED
+     *                             7: SUSPENDED
+     *                             This parameter is only valid when specified by administrators. If non-admin users specify
+     *                             this parameter, it is ignored.
+     * @param progress             Optional - Filter the server list result by the progress of the server. The value could
+     *                             be from 0 to 100 as integer. This parameter is only valid when specified by administrators.
+     *                             If non-admin users specify this parameter, it is ignored.
+     * @param projectId            Optional - Filter the list of servers by the given project ID. This filter only works
+     *                             when the all_tenants filter is also specified.
+     *                             Note: ‘tenant_id’ can also be requested which is alias of ‘project_id’ but that is not
+     *                             recommended to use as that will be removed in future.
+     * @param ramdiskId            Optional - Filter the server list result by the UUID of the ramdisk image when using
+     *                             an AMI. This parameter is only valid when specified by administrators. If non-admin
+     *                             users specify this parameter, it is ignored.
+     * @param reservationId        Optional - A reservation id as returned by a servers multiple create call.
+     * @param rootDeviceName       Optional - Filter the server list result by the root device name of the server.
+     *                             This parameter is only valid when specified by administrators. If non-admin users
+     *                             specify this parameter, it is ignored.
+     * @param softDeleted          Optional - Filter the server list by SOFT_DELETED status. This parameter is only valid
+     *                             when the deleted=True filter parameter is specified.
+     * @param sortDir              Optional - Sort direction. You can specify multiple pairs of sort key and sort direction
+     *                             query parameters. If you omit the sort direction in a pair, the API uses the natural
+     *                             sorting direction of the direction of the server sort_key attribute.
+     *                             Valid values: "asc" (ascending), "desc" (descending).
+     *                             Default value: "desc"
+     * @param sortKey              Optional - Sorts by a server attribute. Default attribute is created_at. You can specify
+     *                             multiple pairs of sort key and sort direction query parameters. If you omit the sort
+     *                             direction in a pair, the API uses the natural sorting direction of the server sort_key
+     *                             attribute. The sort keys are limited to:
+     *                             access_ip_v4
+     *                             access_ip_v6
+     *                             auto_disk_config
+     *                             availability_zone
+     *                             config_drive
+     *                             created_at
+     *                             display_description
+     *                             display_name
+     *                             host
+     *                             hostname
+     *                             image_ref
+     *                             instance_type_id
+     *                             kernel_id
+     *                             key_name
+     *                             launch_index
+     *                             launched_at
+     *                             locked_by
+     *                             node
+     *                             power_state
+     *                             progress
+     *                             project_id
+     *                             ramdisk_id
+     *                             root_device_name
+     *                             task_state
+     *                             terminated_at
+     *                             updated_at
+     *                             user_id
+     *                             uuid
+     *                             vm_state
+     *                             host and node are only allowed for admin. If non-admin users specify them, a 403 error
+     *                             is returned.
+     * @param status               Optional - Filters the response by a server status, as a string.
+     *                             Example: ACTIVE.
+     *                             Note: Up to microversion 2.37, an empty list is returned if an invalid status is specified.
+     *                             Starting from microversion 2.38, a 400 error is returned in that case.
+     * @param taskState            Optional - Filter the server list result by task state. This parameter is only valid
+     *                             when specified by administrators. If non-admin users specify this parameter, it is ignored.
+     * @param terminatedAt         Optional - Filter the server list result by a date and time stamp when instance was
+     *                             terminated. The date and time stamp format is ISO 8601.
+     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
+     *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
+     *                             Example: 2015-08-27T09:49:58-05:00.
+     *                             If you omit the time zone, the UTC time zone is assumed.
+     *                             This parameter is only valid when specified by administrators. If non-admin users specify
+     *                             this parameter, it is ignored.
+     * @param userId               Optional - Filter the list of servers by the given user ID. This parameter is only
+     *                             valid when specified by administrators. If non-admin users specify this parameter, it
+     *                             is ignored.
+     * @param uuid                 Optional - Filter the server list result by the UUID of the server. This parameter is
+     *                             only valid when specified by administrators. If non-admin users specify this parameter,
+     *                             it is ignored.
+     * @param vmState              Optional - Filter the server list result by vm state. This parameter is only valid when
+     *                             specified by administrators. If non-admin users specify this parameter, it is ignored.
+     *                             Valid values: "ACTIVE", "BUILDING", "DELETED", "ERROR", "PAUSED", "RESCUED", "RESIZED",
+     *                             "SHELVED", "SHELVED_OFFLOADED", "SOFT_DELETED", "STOPPED", "SUSPENDED"
+     * @param notTags              Optional - A list of tags to filter the server list by. Servers that don’t match all
+     *                             tags in this list will be returned. Boolean expression in this case is ‘NOT (t1 AND t2)’.
+     *                             Tags in query must be separated by comma.
+     *                             Note: New in version 2.26
+     * @param notTagsAny           Optional - A list of tags to filter the server list by. Servers that match any tag in
+     *                             this list will be returned. Boolean expression in this case is ‘t1 OR t2’. Tags in
+     *                             query must be separated by comma.
+     *                             Note: New in version 2.26
+     * @param tags                 Optional - A list of tags to filter the server list by. Servers that match all tags in
+     *                             this list will be returned. Boolean expression in this case is ‘t1 AND t2’. Tags in
+     *                             query must be separated by comma.
+     *                             Note: New in version 2.26
+     * @param tagsAny              Optional - A list of tags to filter the server list by. Servers that match any tag in
+     *                             this list will be returned. Boolean expression in this case is ‘t1 OR t2’. Tags in
+     *                             query must be separated by comma.
+     *                             Note: New in version 2.26
      * @return A map with strings as keys and strings as values that contains: outcome of the action (or failure message
      * and the exception if there is one), returnCode of the operation
      */
@@ -242,11 +463,13 @@ public class ListServers {
                                        @Param(value = USE_COOKIES) String useCookies,
                                        @Param(value = KEEP_ALIVE) String keepAlive,
                                        @Param(value = VERSION) String version,
+                                       @Param(value = TOKEN) String token,
                                        @Param(value = ACCESS_IP_V4) String accessIpV4,
                                        @Param(value = ACCESS_IP_V6) String accessIpV6,
                                        @Param(value = ALL_TENANTS) String allTenants,
                                        @Param(value = AUTO_DISK_CONFIG) String autoDiskConfig,
                                        @Param(value = AVAILABILITY_ZONE) String availabilityZone,
+                                       @Param(value = CHANGES_BEFORE) String changesBefore,
                                        @Param(value = CHANGES_SINCE) String changesSince,
                                        @Param(value = CONFIG_DRIVE) String configDrive,
                                        @Param(value = CREATED_AT) String createdAt,
@@ -285,8 +508,7 @@ public class ListServers {
                                        @Param(value = NOT_TAGS) String notTags,
                                        @Param(value = NOT_TAGS_ANY) String notTagsAny,
                                        @Param(value = TAGS) String tags,
-                                       @Param(value = TAGS_ANY) String tagsAny,
-                                       @Param(value = CHANGES_BEFORE) String changesBefore) {
+                                       @Param(value = TAGS_ANY) String tagsAny) {
         try {
             HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
                     trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
@@ -294,12 +516,68 @@ public class ListServers {
 
             final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
                     .withEndpoint(endpoint)
-                    .withAction(LIST_ALL_MAJOR_VERSIONS)
-                    .withApi(API)
+                    .withAction(LIST_SERVERS)
+                    .withApi(SERVERS)
                     .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
+                    .withToken(token)
                     .build();
 
-            return new OpenstackService().execute(httpClientInputs, commonInputsBuilder);
+            final ServersInputsBuilder serversInputsBuilder = new ServersInputsBuilder.Builder()
+                    .withAccessIpV4(accessIpV4)
+                    .withAccessIpV6(accessIpV6)
+                    .withAllTenants(allTenants)
+                    .withAutoDiskConfig(autoDiskConfig)
+                    .withAvailabilityZone(availabilityZone)
+                    .withChangesBefore(changesBefore)
+                    .withChangesSince(changesSince)
+                    .withConfigDrive(configDrive)
+                    .withCreatedAt(createdAt)
+                    .withDeleted(deleted)
+                    .withDescription(description)
+                    .withFlavor(flavor)
+                    .withHost(host)
+                    .withHostname(hostname)
+                    .withImage(image)
+                    .withIp(ip)
+                    .withIp6(ip6)
+                    .withKernelId(kernelId)
+                    .withKeyName(keyName)
+                    .withLaunchIndex(launchIndex)
+                    .withLaunchedAt(launchedAt)
+                    .withLimit(limit)
+                    .withLockedBy(lockedBy)
+                    .withMarker(marker)
+                    .withName(name)
+                    .withNode(node)
+                    .withPowerState(powerState)
+                    .withProgress(progress)
+                    .withProjectId(projectId)
+                    .withRamdiskId(ramdiskId)
+                    .withReservationId(reservationId)
+                    .withRootDeviceName(rootDeviceName)
+                    .withSoftDeleted(softDeleted)
+                    .withSortDir(sortDir)
+                    .withSortKey(sortKey)
+                    .withStatus(status)
+                    .withTaskState(taskState)
+                    .withTerminatedAt(terminatedAt)
+                    .withUserId(userId)
+                    .withUuid(uuid)
+                    .withVmState(vmState)
+                    .withNotTags(notTags)
+                    .withNotTagsAny(notTagsAny)
+                    .withTags(tags)
+                    .withTagsAny(tagsAny)
+                    .build();
+
+            Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder, serversInputsBuilder);
+
+            String additionalInformation = handleResponse(response.get(RETURN_RESULT), ListServersResponse.class);
+            if (isNotBlank(additionalInformation)) {
+                response.put(AVAILABLE_SERVERS, additionalInformation);
+            }
+
+            return response;
         } catch (OpenstackException | MalformedURLException exception) {
             return getFailureResultsMap(exception);
         }
