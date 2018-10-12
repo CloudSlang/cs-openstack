@@ -1,16 +1,19 @@
 package io.cloudslang.content.openstack.compute.builders;
 
 import io.cloudslang.content.openstack.compute.entities.servers.PowerState;
+import io.cloudslang.content.openstack.compute.entities.servers.SortKey;
 import io.cloudslang.content.openstack.compute.entities.servers.VmState;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
+import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.THRESHOLD_VERSION_FOR_TIMESTAMP_FILTERING_SERVERS;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidISO8601StringFormat;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidInt;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidStringInput;
-import static io.cloudslang.content.openstack.compute.utils.InputsUtil.shouldBeTrue;
-import static io.cloudslang.content.openstack.validators.Validators.isIpV4;
-import static io.cloudslang.content.openstack.validators.Validators.isIpV6;
+import static io.cloudslang.content.openstack.compute.validators.Validators.isIpV4;
+import static io.cloudslang.content.openstack.compute.validators.Validators.isIpV6;
+import static io.cloudslang.content.openstack.compute.validators.Validators.shouldBeTrue;
 import static io.cloudslang.content.openstack.validators.Validators.isValidHost;
+import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -368,6 +371,12 @@ public class ServersInputsBuilder {
             return this;
         }
 
+        public Builder withChangesBefore(String input) throws OpenstackException {
+            changesBefore = isInputGreaterOrEqualThanThreshold(input, THRESHOLD_VERSION_FOR_TIMESTAMP_FILTERING_SERVERS) ?
+                    getValidISO8601StringFormat(input) : null;
+            return this;
+        }
+
         public Builder withChangesSince(String input) throws OpenstackException {
             changesSince = getValidISO8601StringFormat(input);
             return this;
@@ -483,8 +492,8 @@ public class ServersInputsBuilder {
             return this;
         }
 
-        public Builder withSortKey(String input) {
-            sortKey = input;
+        public Builder withSortKey(String input) throws OpenstackException {
+            sortKey = SortKey.fromString(input);
             return this;
         }
 
@@ -535,11 +544,6 @@ public class ServersInputsBuilder {
 
         public Builder withTagsAny(String input) {
             tagsAny = input;
-            return this;
-        }
-
-        public Builder withChangesBefore(String input) throws OpenstackException {
-            changesBefore = getValidISO8601StringFormat(input);
             return this;
         }
 

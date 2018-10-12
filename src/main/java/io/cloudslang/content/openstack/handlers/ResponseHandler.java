@@ -17,8 +17,9 @@ import static io.cloudslang.content.openstack.entities.Constants.Headers.TOKEN;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.X_OPENSTACK_REQUEST_ID;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.BLANK_SPACE;
 import static io.cloudslang.content.openstack.entities.Constants.Responses.REQUEST_TRACKING_ID;
+import static io.cloudslang.content.openstack.entities.Constants.Values.THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
-import static io.cloudslang.content.openstack.validators.Validators.isVersionGreaterOrEqualThanThreshold;
+import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -53,7 +54,7 @@ public class ResponseHandler {
             response.put(TOKEN, token);
         }
 
-        if (isVersionGreaterOrEqualThanThreshold(baseVersion)) {
+        if (isInputGreaterOrEqualThanThreshold(baseVersion, THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE)) {
             response.put(REQUEST_TRACKING_ID, getHeaderValue(response.get(RESPONSE_HEADERS), X_OPENSTACK_REQUEST_ID));
         }
     }

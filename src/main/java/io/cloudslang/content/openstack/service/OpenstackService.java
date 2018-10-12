@@ -11,9 +11,10 @@ import java.util.Map;
 
 import static io.cloudslang.content.openstack.builders.PayloadBuilder.buildPayload;
 import static io.cloudslang.content.openstack.builders.QueryParamsBuilder.buildQueryParams;
-import static io.cloudslang.content.openstack.factory.HeadersFactory.setHeaders;
+import static io.cloudslang.content.openstack.factory.Headers.setHeaders;
 import static io.cloudslang.content.openstack.factory.InputsWrapperFactory.buildWrapper;
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildUrl;
+import static io.cloudslang.content.openstack.utils.InputsUtil.handleQueryUrl;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -22,7 +23,7 @@ public class OpenstackService {
     public final <T> Map<String, String> execute(HttpClientInputs httpClientInputs, CommonInputsBuilder commonInputsBuilder, T... builders) throws MalformedURLException, OpenstackException {
         InputsWrapper wrapper = buildWrapper(httpClientInputs, commonInputsBuilder, builders);
 
-        httpClientInputs.setUrl(join(buildUrl(wrapper), buildQueryParams(wrapper)));
+        httpClientInputs.setUrl(handleQueryUrl(buildUrl(wrapper), buildQueryParams(wrapper)));
         setHeaders(wrapper);
 
         String payload = buildPayload(wrapper);

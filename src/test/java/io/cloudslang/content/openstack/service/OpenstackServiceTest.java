@@ -19,6 +19,7 @@ import java.util.HashMap;
 import static io.cloudslang.content.openstack.TestsUtil.getApiInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getCommonInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getIdentityInputs;
+import static io.cloudslang.content.openstack.TestsUtil.getServerInputs;
 import static io.cloudslang.content.openstack.TestsUtil.setExpectedExceptions;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static org.junit.Assert.assertEquals;
@@ -87,7 +88,7 @@ public class OpenstackServiceTest {
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
         verifyNoMoreInteractions(httpClientServiceMock);
 
-        assertEquals("http://mycompute.pvt:8774/compute/v2.0/", httpClientInputs.getUrl());
+        assertEquals("http://mycompute.pvt:8774/compute/v2.0", httpClientInputs.getUrl());
     }
 
     @Test
@@ -100,5 +101,24 @@ public class OpenstackServiceTest {
         verifyNoMoreInteractions(httpClientServiceMock);
 
         assertEquals("https://example.com:5000/v3/auth/tokens", httpClientInputs.getUrl());
+    }
+
+    @Test
+    public void shouldMakeHttpCallWhenListServers() throws MalformedURLException, OpenstackException {
+        toTest.execute(httpClientInputs,
+                getCommonInputs("https://example.com", "servers", "v3", "ListServers"),
+                getServerInputs("", "", "", "", "", "2018-09-01T00:00:00Z",
+                        "2015-01-24T17:08Z", "", "2018-10-01T08:00:00Z", "", "", "", "",
+                        "", "", "", "", "", "", "", "2018-10-01T09:00:00Z",
+                        "", "", "","", "", "running", "", "",
+                        "", "", "", "", "", "", "",
+                        "", "2018-10-02T00:00:00Z", "", "", "active", "", "", "",
+                        ""));
+
+        verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
+        verifyNoMoreInteractions(httpClientServiceMock);
+
+        assertEquals("https://example.com:8774/compute/v3/servers?changes-since=2015-01-24T17:08Z&created_at=2018-10-01T08:00:00Z&launch_index=10&launched_at=2018-10-01T09:00:00Z&limit=10&power_state=1&progress=10&sort_key=created_at&terminated_at=2018-10-02T00:00:00Z&vm_state=ACTIVE",
+                httpClientInputs.getUrl());
     }
 }

@@ -61,7 +61,7 @@ public class HttpClientInputsBuilder {
         httpClientInputs.setSocketTimeout(defaultIfEmpty(socketTimeout, DEFAULT_TIMEOUT_VALUE));
         httpClientInputs.setUseCookies(defaultIfEmpty(useCookies, valueOf(FALSE)));
         httpClientInputs.setKeepAlive(defaultIfEmpty(keepAlive, valueOf(TRUE)));
-        httpClientInputs.setQueryParamsAreURLEncoded(valueOf(FALSE));
+        httpClientInputs.setQueryParamsAreURLEncoded(valueOf(TRUE));
 
         httpClientInputs.setAuthType(ANONYMOUS);
         httpClientInputs.setContentType(APPLICATION_JSON.getMimeType());

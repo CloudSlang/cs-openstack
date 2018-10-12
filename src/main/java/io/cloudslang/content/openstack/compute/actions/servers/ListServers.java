@@ -232,27 +232,24 @@ public class ListServers {
      * @param autoDiskConfig       Optional - Filter the server list result by the disk_config setting of the server.
      *                             This parameter is only valid when specified by administrators. If non-admin users
      *                             specify this parameter, it is ignored.
-     *                             Valid values: "AUTO", "MANUAL"
-     *                             Default value: "AUTO"
+     *                             Valid values: "auto", "manual"
+     *                             Default value: "auto"
      * @param availabilityZone     Optional - Filter the server list result by server availability zone. This parameter
      *                             is only valid when specified by administrators. If non-admin users specify this parameter,
      *                             it is ignored.
      * @param changesBefore        Optional - Filters the response by a date and time stamp when the server last changed.
      *                             Those servers that changed before or equal to the specified date and time stamp are
      *                             returned. To help keep track of changes this may also return recently deleted servers.
-     *                             The date and time stamp format is ISO 8601.
+     *                             The date and time stamp format is ISO 8601. The UTC time zone is reference.
      *                             Note: New in version 2.66
-     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
+     *                             Example: CCYY-MM-DDThh:mm:ss
      *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
-     *                             Example: 2015-08-27T09:49:58-05:00. If you omit the time zone, the UTC time zone is
-     *                             assumed.
+     *                             Example: 2015-08-27T09:49:58
      * @param changesSince         Optional - Filters the response by a date and time stamp when the server last changed
      *                             status. To help keep track of changes this may also return recently deleted servers.
-     *                             The date and time stamp format is ISO 8601.
-     *                             Example: CCYY-MM-DDThh:mm:ss±hh:mm
-     *                             The ±hh:mm value, if included, returns the time zone as an offset from UTC.
-     *                             Example: 2015-08-27T09:49:58-05:00.
-     *                             If you omit the time zone, the UTC time zone is assumed.
+     *                             The date and time stamp format is ISO 8601. The UTC time zone is reference.
+     *                             Example: CCYY-MM-DDThh:mm:ss
+     *                             Example: 2015-08-27T09:49:58
      * @param configDrive          Optional - Filter the server list result by the config drive setting of the server.
      *                             This parameter is only valid when specified by administrators. If non-admin users
      *                             specify this parameter, it is ignored.

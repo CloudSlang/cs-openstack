@@ -13,11 +13,11 @@ import static io.cloudslang.content.openstack.identity.entities.Constants.Values
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.join;
 
-public class PrefixFactory {
-    private PrefixFactory() {
+public class Prefix {
+    private Prefix() {
     }
 
-    public static String getApiPrefix(InputsWrapper wrapper) {
+    public static String getPrefix(InputsWrapper wrapper) {
         String api = wrapper.getCommonInputsBuilder().getApi();
         String baseVersion = wrapper.getCommonInputsBuilder().getVersion();
 

@@ -5,6 +5,7 @@ import io.cloudslang.content.openstack.compute.entities.servers.AutoDiskConfig;
 import io.cloudslang.content.openstack.compute.entities.servers.LockedBy;
 import io.cloudslang.content.openstack.compute.entities.servers.PowerState;
 import io.cloudslang.content.openstack.compute.entities.servers.ServersApi;
+import io.cloudslang.content.openstack.compute.entities.servers.SortKey;
 import io.cloudslang.content.openstack.compute.entities.servers.VmState;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
@@ -13,20 +14,25 @@ import io.cloudslang.content.openstack.identity.entities.IdentityApi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
+import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.AMPERSAND;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.BLANK_SPACE;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.COLON;
+import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.EQUAL;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.SLASH;
-import static io.cloudslang.content.openstack.factory.PrefixFactory.getApiPrefix;
-import static io.cloudslang.content.openstack.factory.UriFactory.getUri;
+import static io.cloudslang.content.openstack.factory.Prefix.getPrefix;
+import static io.cloudslang.content.openstack.factory.Uri.getUri;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class InputsUtil {
     private InputsUtil() {
@@ -37,32 +43,29 @@ public class InputsUtil {
 
         StringJoiner sj = new StringJoiner(COLON);
         sj.add(url.toString());
-        sj.add(getApiPrefix(wrapper));
+        sj.add(getPrefix(wrapper));
 
         return appendIfMissing(sj.toString(), SLASH) + getUri(wrapper);
+    }
+
+    public static String handleQueryUrl(String url, String queryParams) {
+        return url.endsWith(SLASH) ?
+                join(url.substring(0, url.length() - 1), queryParams) : join(url, queryParams);
     }
 
     public static <E extends Enum<E>> String buildErrorMessage(Class<E> classOfT) {
         final StringBuilder sb = new StringBuilder();
 
         stream(classOfT.getEnumConstants())
-                .forEach(e -> concatenate(sb, e, COMMA_DELIMITER + BLANK_SPACE));
+                .forEach(e -> concatenateEntries(sb, e, COMMA_DELIMITER + BLANK_SPACE));
 
         String errorMessage = sb.toString();
 
         return isBlank(errorMessage) ? EMPTY : errorMessage.substring(0, errorMessage.length() - 2);
     }
 
-    @SuppressWarnings({"unchecked"})
-    public static <T, E> E safeCastOrNull(final T value, final Class<E> targetType) {
-        return targetType == null || !targetType.isInstance(value) ? null :
-                Optional
-                        .of((E) value)
-                        .get();
-    }
-
     @SuppressWarnings("SameParameterValue")
-    private static <E extends Enum<E>> void concatenate(StringBuilder sb, E e, String delimiter) {
+    private static <E extends Enum<E>> void concatenateEntries(StringBuilder sb, E e, String delimiter) {
         if (safeCastOrNull(e, ComputeApi.class) != null) {
             sb
                     .append(((ComputeApi) e).getValue())
@@ -99,6 +102,34 @@ public class InputsUtil {
             sb
                     .append(e.name().toLowerCase())
                     .append(delimiter);
+        } else if (safeCastOrNull(e, SortKey.class) != null) {
+            sb
+                    .append(((SortKey) e).getValue())
+                    .append(delimiter);
         }
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private static <T, E> E safeCastOrNull(final T value, final Class<E> targetType) {
+        return targetType == null || !targetType.isInstance(value) ? null :
+                Optional
+                        .of((E) value)
+                        .get();
+    }
+
+    public static String getQueryParamsString(Map<String, String> queryParamsMap) {
+        if (queryParamsMap == null || queryParamsMap.isEmpty()) {
+            return EMPTY;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        queryParamsMap.entrySet().stream()
+                .filter(f -> isNotBlank(f.getValue()))
+                .forEach(entry -> sb.append(join(entry.getKey(), EQUAL, entry.getValue(), AMPERSAND)));
+
+        String queryParamsString = sb.toString();
+
+        return queryParamsString.substring(0, queryParamsString.length() - 1);
     }
 }

@@ -38,6 +38,6 @@ public enum PowerState {
         return Optional
                 .ofNullable(POWER_STATE_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Servers power state config : '%s'. Valid values: '%s'.",
-                        input, buildErrorMessage(LockedBy.class))));
+                        input, buildErrorMessage(PowerState.class))));
     }
 }

@@ -15,8 +15,10 @@ public class Constants {
     }
 
     public static class Miscellaneous {
+        public static final String AMPERSAND = "&";
         public static final String BLANK_SPACE = " ";
         public static final String COLON = ":";
+        public static final String EQUAL = "=";
         public static final String QUESTION_MARK = "?";
         public static final String SLASH = "/";
     }
@@ -31,7 +33,6 @@ public class Constants {
 
     public static class Values {
         public static final String DEFAULT_TIMEOUT_VALUE = "0";
-        public static final String ISO8601_PATTERN = "CCYY-MM-DDThh:mm:ss±hh:mm";
-        public static final float VERSION_THRESHOLD_FLOAT = 2.46f;
+        public static final float THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE = 2.46f;
     }
 }

@@ -5,14 +5,14 @@ import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
 import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Api.SERVERS;
-import static io.cloudslang.content.openstack.compute.factory.ApiUrifactory.getApiUri;
-import static io.cloudslang.content.openstack.compute.factory.ServersUriFactory.getServersUri;
+import static io.cloudslang.content.openstack.compute.factory.ApiUri.getApiUri;
+import static io.cloudslang.content.openstack.compute.factory.ServersUri.getServersUri;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Api.IDENTITY;
 import static io.cloudslang.content.openstack.identity.factory.IdentityUri.getIdentityUri;
 import static java.lang.String.format;
 
-public class UriFactory {
-    private UriFactory() {
+public class Uri {
+    private Uri() {
     }
 
     public static String getUri(InputsWrapper wrapper) throws OpenstackException {

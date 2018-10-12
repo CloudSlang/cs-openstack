@@ -11,8 +11,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
 public enum AutoDiskConfig {
-    AUTO("AUTO"),
-    MANUAL("MANUAL");
+    AUTO("auto"),
+    MANUAL("manual");
 
     private static final Map<String, String> AUTO_DISK_CONFIG_MAP = new HashMap<>();
 

@@ -13,18 +13,19 @@ import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API
 import static io.cloudslang.content.openstack.entities.Constants.Headers.REQUEST_ID_HEADER_PREFIX;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.X_AUTH_TOKEN;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.X_OPENSTACK_REQUEST_ID;
-import static io.cloudslang.content.openstack.validators.Validators.isVersionGreaterOrEqualThanThreshold;
+import static io.cloudslang.content.openstack.entities.Constants.Values.THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE;
+import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
 import static java.lang.String.join;
 import static java.util.UUID.randomUUID;
 
-public class HeadersFactory {
-    private HeadersFactory() {
+public class Headers {
+    private Headers() {
     }
 
     public static void setHeaders(InputsWrapper wrapper) {
         Set<Header> headersSet = new HashSet<>();
 
-        if (isVersionGreaterOrEqualThanThreshold(wrapper.getCommonInputsBuilder().getVersion())) {
+        if (isInputGreaterOrEqualThanThreshold(wrapper.getCommonInputsBuilder().getVersion(), THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE)) {
             headersSet.add(new BasicHeader(X_OPENSTACK_REQUEST_ID, join(REQUEST_ID_HEADER_PREFIX + randomUUID().toString())));
         }
 

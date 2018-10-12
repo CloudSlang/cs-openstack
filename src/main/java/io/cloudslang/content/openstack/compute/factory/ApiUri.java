@@ -5,8 +5,8 @@ import io.cloudslang.content.openstack.entities.InputsWrapper;
 import static io.cloudslang.content.openstack.compute.entities.ComputeApi.API;
 import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.GET_API_VERSION_DETAILS;
 
-public class ApiUrifactory {
-    private ApiUrifactory() {
+public class ApiUri {
+    private ApiUri() {
     }
 
     public static String getApiUri(InputsWrapper wrapper) {

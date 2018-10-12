@@ -2,21 +2,23 @@ package io.cloudslang.content.openstack.compute.utils;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static io.cloudslang.content.openstack.entities.Constants.Values.ISO8601_PATTERN;
+import static io.cloudslang.content.openstack.compute.validators.Validators.isValidISO8601DateFormat;
 import static io.cloudslang.content.openstack.validators.Validators.isValidInt;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
-import static java.time.LocalDate.parse;
-import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class InputsUtil {
     private InputsUtil() {
     }
 
     public static String getValidStringInput(String input, boolean condition, String errorMessage) throws OpenstackException {
+        if (isBlank(input)) {
+            return EMPTY;
+        }
+
         if (condition) {
             return input;
         }
@@ -25,23 +27,26 @@ public class InputsUtil {
     }
 
     public static String getValidISO8601StringFormat(String input) throws OpenstackException {
-        return Optional
-                .of(parse(input, ofPattern(ISO8601_PATTERN)).toString())
-                .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s. Specify an ISO 8601 compliant formatted string.",
-                        input)));
+        if (isNotBlank(input)) {
+            if (isValidISO8601DateFormat(input)) {
+                return input;
+            }
+
+            throw new OpenstackException(format("Incorrect input value: %s. Specify an ISO 8601 compliant formatted string.", input));
+        }
+
+        return null;
     }
 
     public static int getValidInt(String input) throws OpenstackException {
-        if (isValidInt(input)) {
-            return parseInt(input);
+        if (isNotBlank(input)) {
+            if (isValidInt(input)) {
+                return parseInt(input);
+            }
+
+            throw new OpenstackException(format("Incorrect input value: %s. Specify a valid integer value.", input));
+        } else {
+            return 10;
         }
-
-        throw new OpenstackException(format("Incorrect input value: %s. Specify a valid integer value.", input));
-    }
-
-    public static boolean shouldBeTrue(String input) {
-        return Stream
-                .of("1", "t", "true", "on", "y", "yes")
-                .anyMatch(input::equalsIgnoreCase);
     }
 }

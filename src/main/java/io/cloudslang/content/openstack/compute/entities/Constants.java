@@ -18,10 +18,11 @@ public class Constants {
 
     public static class QueryParams {
         public static final String ACCESS_IP_V4 = "access_ip_v4";
-        public static final String ACCESS_IP_V6 = "access_ip_v6 ";
+        public static final String ACCESS_IP_V6 = "ACCESS_IP_V6 ";
         public static final String ALL_TENANTS = "all_tenants";
         public static final String AUTO_DISK_CONFIG = "auto_disk_config";
         public static final String AVAILABILITY_ZONE = "availability_zone";
+        public static final String CHANGES_BEFORE = "changes-before";
         public static final String CHANGES_SINCE = "changes-since";
         public static final String CONFIG_DRIVE = "config_drive";
         public static final String CREATED_AT = "created_at";
@@ -61,7 +62,6 @@ public class Constants {
         public static final String NOT_TAGS_ANY = "not-tags-any";
         public static final String TAGS = "tags";
         public static final String TAGS_ANY = "tags-any";
-        public static final String CHANGES_BEFORE = "changes-before";
     }
 
     public static class Uri {
@@ -74,5 +74,6 @@ public class Constants {
 
     public static class Versions {
         public static final String DEFAULT_COMPUTE_VERSION = "v2.0";
+        public static final float THRESHOLD_VERSION_FOR_TIMESTAMP_FILTERING_SERVERS = 2.66f;
     }
 }

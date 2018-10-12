@@ -1,11 +1,8 @@
 package io.cloudslang.content.openstack.validators;
 
-import org.apache.commons.validator.routines.InetAddressValidator;
-
 import java.util.regex.PatternSyntaxException;
 
 import static io.cloudslang.content.openstack.entities.Constants.Patterns.HOST_PATTERN;
-import static io.cloudslang.content.openstack.entities.Constants.Values.VERSION_THRESHOLD_FLOAT;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.Float.parseFloat;
@@ -22,10 +19,10 @@ public class Validators {
         return bothValuesArePresent(input1, input2) || bothValuesAreAbsent(input1, input2) ? FALSE : TRUE;
     }
 
-    public static boolean isVersionGreaterOrEqualThanThreshold(String input) {
+    public static boolean isInputGreaterOrEqualThanThreshold(String input, float threshold) {
         if (isNotBlank(input)) {
             try {
-                return parseFloat(input) >= VERSION_THRESHOLD_FLOAT; // micro-version threshold for tracking requests
+                return parseFloat(input) >= threshold; // micro-version threshold
             } catch (NumberFormatException nfe) {
                 return FALSE;
             }
@@ -49,14 +46,6 @@ public class Validators {
         } catch (NumberFormatException nfe) {
             return FALSE;
         }
-    }
-
-    public static boolean isIpV4(String input) {
-        return new InetAddressValidator().isValidInet4Address(input);
-    }
-
-    public static boolean isIpV6(String input) {
-        return new InetAddressValidator().isValidInet6Address(input);
     }
 
     public static boolean bothValuesArePresent(String input1, String input2) {
