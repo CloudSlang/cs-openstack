@@ -217,7 +217,11 @@ public class ListServers {
      *                             Default value: "2.0"
      *                             Notes: The maximum microversion supported by each release varies.
      *                             Please reference: https://docs.openstack.org/nova/latest/reference/api-microversion-history.html
-     *                             for API microversion history details.
+     *                             for API micro-version history details.
+     * @param token                Authentication tokens that permit access to the OpenStack services REST APIs. Clients
+     *                             obtain this token and the URL endpoints for other service APIs by supplying their valid
+     *                             credentials to the authentication service. Each time a REST API request to an OpenStack
+     *                             service, supplying authentication token in the X-Auth-Token request header is mandatory.
      * @param accessIpV4           Optional - Filter server list result by IPv4 address that should be used to access the
      *                             server.
      * @param accessIpV6           Optional - Filter server list result by IPv6 address that should be used to access the
@@ -436,7 +440,7 @@ public class ListServers {
                                        @Param(value = USE_COOKIES) String useCookies,
                                        @Param(value = KEEP_ALIVE) String keepAlive,
                                        @Param(value = VERSION) String version,
-                                       @Param(value = TOKEN) String token,
+                                       @Param(value = TOKEN, required = true) String token,
                                        @Param(value = ACCESS_IP_V4) String accessIpV4,
                                        @Param(value = ACCESS_IP_V6) String accessIpV6,
                                        @Param(value = ALL_TENANTS) String allTenants,

@@ -11,6 +11,7 @@ import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidI
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidInt;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidIntWithinRange;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidStringInput;
+import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidUuidFormattedString;
 import static io.cloudslang.content.openstack.compute.validators.Validators.isIpV4;
 import static io.cloudslang.content.openstack.compute.validators.Validators.isIpV6;
 import static io.cloudslang.content.openstack.compute.validators.Validators.shouldBeTrue;
@@ -47,6 +48,7 @@ public class ServersInputsBuilder {
     private final String ramdiskId;
     private final String reservationId;
     private final String rootDeviceName;
+    private final String serverId;
     private final String softDeleted;
     private final String sortDir;
     private final String sortKey;
@@ -96,6 +98,7 @@ public class ServersInputsBuilder {
         this.ramdiskId = builder.ramdiskId;
         this.reservationId = builder.reservationId;
         this.rootDeviceName = builder.rootDeviceName;
+        this.serverId = builder.serverId;
         this.softDeleted = builder.softDeleted;
         this.sortDir = builder.sortDir;
         this.sortKey = builder.sortKey;
@@ -220,6 +223,10 @@ public class ServersInputsBuilder {
         return rootDeviceName;
     }
 
+    public String getServerId() {
+        return serverId;
+    }
+
     public String getSoftDeleted() {
         return softDeleted;
     }
@@ -326,6 +333,7 @@ public class ServersInputsBuilder {
         private String ramdiskId;
         private String reservationId;
         private String rootDeviceName;
+        private String serverId;
         private String softDeleted;
         private String sortDir;
         private String sortKey;
@@ -481,6 +489,11 @@ public class ServersInputsBuilder {
 
         public Builder withRootDeviceName(String input) {
             rootDeviceName = input;
+            return this;
+        }
+
+        public Builder withServerId(String input) throws OpenstackException {
+            serverId = getValidUuidFormattedString(input);
             return this;
         }
 

@@ -105,4 +105,10 @@ public class TestsUtil {
                 .withTagsAny(tagsAny)
                 .build();
     }
+
+    public static ServersInputsBuilder getDeleteServersInputs(String serverId) throws OpenstackException {
+        return new ServersInputsBuilder.Builder()
+                .withServerId(serverId)
+                .build();
+    }
 }

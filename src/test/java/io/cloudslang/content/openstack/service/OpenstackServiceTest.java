@@ -15,9 +15,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.UUID;
 
 import static io.cloudslang.content.openstack.TestsUtil.getApiInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getCommonInputs;
+import static io.cloudslang.content.openstack.TestsUtil.getDeleteServersInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getIdentityInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getServerInputs;
 import static io.cloudslang.content.openstack.TestsUtil.setExpectedExceptions;
@@ -110,7 +112,7 @@ public class OpenstackServiceTest {
                 getServerInputs("", "", "", "", "", "2018-09-01T00:00:00Z",
                         "2015-01-24T17:08Z", "", "2018-10-01T08:00:00Z", "", "", "", "",
                         "", "", "", "", "", "", "", "2018-10-01T09:00:00Z",
-                        "", "", "","", "", "running", "", "",
+                        "", "", "", "", "", "running", "", "",
                         "", "", "", "", "", "", "",
                         "", "2018-10-02T00:00:00Z", "", "", "active", "", "", "",
                         ""));
@@ -120,5 +122,18 @@ public class OpenstackServiceTest {
 
         assertEquals("https://example.com:8774/compute/v3/servers?changes-since=2015-01-24T17:08Z&created_at=2018-10-01T08:00:00Z&launch_index=1&launched_at=2018-10-01T09:00:00Z&limit=20&power_state=1&progress=100&sort_key=created_at&terminated_at=2018-10-02T00:00:00Z&vm_state=ACTIVE",
                 httpClientInputs.getUrl());
+    }
+
+    @Test
+    public void shouldMakeHttpCallWhenDeleteServer() throws MalformedURLException, OpenstackException {
+        String randomUUID = UUID.randomUUID().toString();
+
+        toTest.execute(httpClientInputs, getCommonInputs("https://example.com", "servers", "v3", "DeleteServer"),
+                getDeleteServersInputs(randomUUID));
+
+        verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
+        verifyNoMoreInteractions(httpClientServiceMock);
+
+        assertEquals("https://example.com:8774/compute/v3/servers/" + randomUUID, httpClientInputs.getUrl());
     }
 }

@@ -5,10 +5,10 @@ public class Constants {
     }
 
     public static class Actions {
+        public static final String DELETE_SERVER = "DeleteServer";
         public static final String GET_API_VERSION_DETAILS = "GetApiVersionDetails";
         public static final String LIST_ALL_MAJOR_VERSIONS = "ListAllMajorVersions";
         public static final String LIST_SERVERS = "ListServers";
-        public static final String LIST_SERVERS_DETAILED = "ListServersDetailed";
     }
 
     public static class Api {

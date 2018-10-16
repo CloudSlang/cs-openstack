@@ -41,6 +41,7 @@ public class Inputs {
         public static final String RAMDISK_ID = "ramdiskId";
         public static final String RESERVATION_ID = "reservationId";
         public static final String ROOT_DEVICE_NAME = "rootDeviceName";
+        public static final String SERVER_ID = "serverId";
         public static final String SOFT_DELETED = "softDeleted";
         public static final String SORT_DIR = "sortDir";
         public static final String SORT_KEY = "sortKey";

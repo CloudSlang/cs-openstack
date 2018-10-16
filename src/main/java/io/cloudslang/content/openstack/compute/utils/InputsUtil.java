@@ -4,6 +4,7 @@ import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
 import static io.cloudslang.content.openstack.compute.validators.Validators.isValidISO8601DateFormat;
 import static io.cloudslang.content.openstack.validators.Validators.isValidInt;
+import static io.cloudslang.content.openstack.validators.Validators.isValidUuid;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
@@ -60,5 +61,13 @@ public class InputsUtil {
 
         throw new OpenstackException(format("Incorrect input value: %s. Specify an integer value between: %s and %s.",
                 input, valueOf(minValue), valueOf(maxValue)));
+    }
+
+    public static String getValidUuidFormattedString(String input) throws OpenstackException {
+        if (isValidUuid(input)) {
+            return input;
+        }
+
+        throw new OpenstackException(format("Incorrect input value: %s. Specify a UUID formatted value.", input));
     }
 }

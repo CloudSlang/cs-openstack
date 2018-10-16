@@ -1,5 +1,6 @@
 package io.cloudslang.content.openstack.validators;
 
+import java.util.UUID;
 import java.util.regex.PatternSyntaxException;
 
 import static io.cloudslang.content.openstack.entities.Constants.Patterns.HOST_PATTERN;
@@ -44,6 +45,17 @@ public class Validators {
             parseInt(input);
             return TRUE;
         } catch (NumberFormatException nfe) {
+            return FALSE;
+        }
+    }
+
+    public static boolean isValidUuid(String input) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            UUID.fromString(input);
+
+            return TRUE;
+        } catch (IllegalArgumentException exception) {
             return FALSE;
         }
     }
