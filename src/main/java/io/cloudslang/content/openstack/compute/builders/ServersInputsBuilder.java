@@ -2,18 +2,20 @@ package io.cloudslang.content.openstack.compute.builders;
 
 import io.cloudslang.content.openstack.compute.entities.servers.PowerState;
 import io.cloudslang.content.openstack.compute.entities.servers.SortKey;
+import io.cloudslang.content.openstack.compute.entities.servers.Status;
 import io.cloudslang.content.openstack.compute.entities.servers.VmState;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
 import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.THRESHOLD_VERSION_FOR_TIMESTAMP_FILTERING_SERVERS;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidISO8601StringFormat;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidInt;
+import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidIntWithinRange;
 import static io.cloudslang.content.openstack.compute.utils.InputsUtil.getValidStringInput;
 import static io.cloudslang.content.openstack.compute.validators.Validators.isIpV4;
 import static io.cloudslang.content.openstack.compute.validators.Validators.isIpV6;
 import static io.cloudslang.content.openstack.compute.validators.Validators.shouldBeTrue;
-import static io.cloudslang.content.openstack.validators.Validators.isValidHost;
 import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
+import static io.cloudslang.content.openstack.validators.Validators.isValidHost;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -497,8 +499,8 @@ public class ServersInputsBuilder {
             return this;
         }
 
-        public Builder withStatus(String input) {
-            status = input;
+        public Builder withStatus(String input) throws OpenstackException {
+            status = Status.fromString(input);
             return this;
         }
 
@@ -548,12 +550,12 @@ public class ServersInputsBuilder {
         }
 
         public Builder withLaunchIndex(String input) throws OpenstackException {
-            launchIndex = getValidInt(input);
+            launchIndex = getValidInt(input, 1);
             return this;
         }
 
         public Builder withLimit(String input) throws OpenstackException {
-            limit = getValidInt(input);
+            limit = getValidInt(input, 20);
             return this;
         }
 
@@ -563,7 +565,7 @@ public class ServersInputsBuilder {
         }
 
         public Builder withProgress(String input) throws OpenstackException {
-            progress = getValidInt(input);
+            progress = getValidIntWithinRange(input, 0, 100, 100);
             return this;
         }
 

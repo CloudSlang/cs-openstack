@@ -6,6 +6,7 @@ import io.cloudslang.content.openstack.compute.entities.servers.LockedBy;
 import io.cloudslang.content.openstack.compute.entities.servers.PowerState;
 import io.cloudslang.content.openstack.compute.entities.servers.ServersApi;
 import io.cloudslang.content.openstack.compute.entities.servers.SortKey;
+import io.cloudslang.content.openstack.compute.entities.servers.Status;
 import io.cloudslang.content.openstack.compute.entities.servers.VmState;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
@@ -105,6 +106,10 @@ public class InputsUtil {
         } else if (safeCastOrNull(e, SortKey.class) != null) {
             sb
                     .append(((SortKey) e).getValue())
+                    .append(delimiter);
+        } else if (safeCastOrNull(e, Status.class) != null) {
+            sb
+                    .append(((Status) e).getValue())
                     .append(delimiter);
         }
     }

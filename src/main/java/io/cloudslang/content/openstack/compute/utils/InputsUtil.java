@@ -6,6 +6,7 @@ import static io.cloudslang.content.openstack.compute.validators.Validators.isVa
 import static io.cloudslang.content.openstack.validators.Validators.isValidInt;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -38,15 +39,26 @@ public class InputsUtil {
         return null;
     }
 
-    public static int getValidInt(String input) throws OpenstackException {
+    public static int getValidInt(String input, int defaultValue) throws OpenstackException {
         if (isNotBlank(input)) {
             if (isValidInt(input)) {
                 return parseInt(input);
             }
 
             throw new OpenstackException(format("Incorrect input value: %s. Specify a valid integer value.", input));
-        } else {
-            return 10;
         }
+
+        return defaultValue;
+    }
+
+    public static int getValidIntWithinRange(String input, int minValue, int maxValue, int defaultValue) throws OpenstackException {
+        int value = getValidInt(input, defaultValue);
+
+        if (value >= minValue && value <= maxValue) {
+            return value;
+        }
+
+        throw new OpenstackException(format("Incorrect input value: %s. Specify an integer value between: %s and %s.",
+                input, valueOf(minValue), valueOf(maxValue)));
     }
 }

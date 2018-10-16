@@ -118,7 +118,7 @@ public class OpenstackServiceTest {
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
         verifyNoMoreInteractions(httpClientServiceMock);
 
-        assertEquals("https://example.com:8774/compute/v3/servers?changes-since=2015-01-24T17:08Z&created_at=2018-10-01T08:00:00Z&launch_index=10&launched_at=2018-10-01T09:00:00Z&limit=10&power_state=1&progress=10&sort_key=created_at&terminated_at=2018-10-02T00:00:00Z&vm_state=ACTIVE",
+        assertEquals("https://example.com:8774/compute/v3/servers?changes-since=2015-01-24T17:08Z&created_at=2018-10-01T08:00:00Z&launch_index=1&launched_at=2018-10-01T09:00:00Z&limit=20&power_state=1&progress=100&sort_key=created_at&terminated_at=2018-10-02T00:00:00Z&vm_state=ACTIVE",
                 httpClientInputs.getUrl());
     }
 }
