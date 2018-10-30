@@ -23,10 +23,6 @@ public class Constants {
         public static final String SLASH = "/";
     }
 
-    public static class Patterns {
-        public static final String HOST_PATTERN = "([^\\[/?#:]*|\\[[\\p{XDigit}\\:\\.]*[%\\p{Alnum}]*\\])";
-    }
-
     public static class Responses {
         public static final String REQUEST_TRACKING_ID = "requestTrackingId";
     }

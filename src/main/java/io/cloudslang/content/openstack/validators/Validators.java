@@ -1,16 +1,14 @@
 package io.cloudslang.content.openstack.validators;
 
 import java.util.UUID;
-import java.util.regex.PatternSyntaxException;
 
-import static io.cloudslang.content.openstack.entities.Constants.Patterns.HOST_PATTERN;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
-import static java.util.regex.Pattern.matches;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.validator.routines.InetAddressValidator.getInstance;
 
 public class Validators {
     private Validators() {
@@ -29,15 +27,12 @@ public class Validators {
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     public static boolean isValidHost(String input) {
-        try {
-            return matches(HOST_PATTERN, input);
-        } catch (PatternSyntaxException pse) {
-            return FALSE;
-        }
+        return isNotBlank(input)
+                && (getInstance().isValidInet4Address(input) || getInstance().isValidInet6Address(input));
     }
 
     public static boolean isValidInt(String input) {
