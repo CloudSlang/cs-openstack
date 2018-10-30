@@ -8,8 +8,6 @@ import static io.cloudslang.content.openstack.validators.Validators.isValidHost;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.commons.validator.routines.InetAddressValidator.*;
-
 public class ValidatorsTest {
     @Test
     public void shouldBeFalseWhenBothNull() {
@@ -42,27 +40,27 @@ public class ValidatorsTest {
     }
 
     @Test
-    public void shouldBeFalseWhenNull(){
+    public void shouldBeFalseWhenNull() {
         assertFalse(isInputGreaterOrEqualThanThreshold(null, 2.66f));
     }
 
     @Test
-    public void shouldBeFalseWhenHostNull(){
+    public void shouldBeFalseWhenHostNull() {
         assertFalse(isValidHost(null));
     }
 
     @Test
-    public void shouldBeFalseWhenHostEmpty(){
+    public void shouldBeFalseWhenHostEmpty() {
         assertFalse(isValidHost(""));
     }
 
     @Test
-    public void shouldBeFalseWhenHostBlank(){
+    public void shouldBeFalseWhenHostBlank() {
         assertFalse(isValidHost("         "));
     }
 
     @Test
-    public void shouldBeFalseWhenHostInvalid(){
+    public void shouldBeFalseWhenHostInvalid() {
         assertFalse(isValidHost("exam}ple.com"));
     }
 }
