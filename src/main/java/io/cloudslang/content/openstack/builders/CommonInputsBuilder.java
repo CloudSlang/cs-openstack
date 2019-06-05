@@ -1,7 +1,10 @@
 package io.cloudslang.content.openstack.builders;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
+
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 public class CommonInputsBuilder {
     private final String endpoint;
@@ -60,7 +63,7 @@ public class CommonInputsBuilder {
         }
 
         public Builder withApi(String inputValue) {
-            api = defaultIfEmpty(inputValue, EMPTY);
+            api = Optional.ofNullable(inputValue).filter(StringUtils::isNotEmpty).orElse(EMPTY);
             return this;
         }
 

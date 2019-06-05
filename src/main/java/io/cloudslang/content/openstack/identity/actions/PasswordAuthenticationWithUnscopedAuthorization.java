@@ -9,7 +9,6 @@ import com.hp.oo.sdk.content.plugin.ActionMetadata.ResponseType;
 import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
-import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 import io.cloudslang.content.openstack.identity.entities.Auth;
 import io.cloudslang.content.openstack.identity.entities.AuthenticationMethod;
@@ -19,10 +18,11 @@ import io.cloudslang.content.openstack.identity.entities.Password;
 import io.cloudslang.content.openstack.identity.entities.User;
 import io.cloudslang.content.openstack.identity.responses.AuthenticationResponse;
 import io.cloudslang.content.openstack.service.OpenstackService;
+import org.apache.commons.lang3.StringUtils;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.cloudslang.content.constants.OutputNames.EXCEPTION;
 import static io.cloudslang.content.constants.OutputNames.RETURN_CODE;
@@ -61,9 +61,7 @@ import static io.cloudslang.content.openstack.identity.entities.Inputs.PASSWORD;
 import static io.cloudslang.content.openstack.identity.entities.Inputs.USERNAME;
 import static io.cloudslang.content.openstack.identity.utils.IdentityUtils.buildDomain;
 import static io.cloudslang.content.openstack.identity.utils.IdentityUtils.buildUser;
-import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.http.client.methods.HttpPost.METHOD_NAME;
 
@@ -201,53 +199,54 @@ public class PasswordAuthenticationWithUnscopedAuthorization {
                                        @Param(value = DOMAIN_ID) String domainId,
                                        @Param(value = DOMAIN_NAME) String domainName,
                                        @Param(value = NO_CATALOG) String noCatalog) {
-        try {
-            HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
-                    trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword, connectTimeout,
-                    socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
-            String baseVersion = defaultIfEmpty(version, DEFAULT_IDENTITY_VERSION);
+        HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
+                trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword, connectTimeout,
+                socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
-            final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
-                    .withEndpoint(endpoint)
-                    .withAction(PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION)
-                    .withApi(IDENTITY)
-                    .withVersion(baseVersion)
-                    .build();
+        String baseVersion = Optional
+                .ofNullable(version)
+                .filter(StringUtils::isNotEmpty)
+                .map(s -> version)
+                .orElse(DEFAULT_IDENTITY_VERSION);
 
-            final Domain domain = buildDomain(domainId, domainName);
+        final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
+                .withEndpoint(endpoint)
+                .withAction(PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION)
+                .withApi(IDENTITY)
+                .withVersion(baseVersion)
+                .build();
 
-            final User user = buildUser(domain, id, username, password);
+        final Domain domain = buildDomain(domainId, domainName);
 
-            final Password passwd = new Password.Builder()
-                    .withUser(user)
-                    .build();
+        final User user = buildUser(domain, id, username, password);
 
-            List<String> methodsList = singletonList(AuthenticationMethod.PASSWORD.getValue());
+        final Password passwd = new Password.Builder()
+                .withUser(user)
+                .build();
 
-            final Identity identity = new Identity.Builder()
-                    .withMethods(methodsList)
-                    .withPassword(passwd)
-                    .build();
+        List<String> methodsList = singletonList(AuthenticationMethod.PASSWORD.getValue());
 
-            final Auth auth = new Auth.Builder()
-                    .withIdentity(identity)
-                    .build();
+        final Identity identity = new Identity.Builder()
+                .withMethods(methodsList)
+                .withPassword(passwd)
+                .build();
 
-            final IdentityInputsBuilder identityInputsBuilder = new IdentityInputsBuilder.Builder()
-                    .withAuth(auth)
-                    .withNoCatalog(noCatalog)
-                    .build();
+        final Auth auth = new Auth.Builder()
+                .withIdentity(identity)
+                .build();
 
-            Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder, identityInputsBuilder);
+        final IdentityInputsBuilder identityInputsBuilder = new IdentityInputsBuilder.Builder()
+                .withAuth(auth)
+                .withNoCatalog(noCatalog)
+                .build();
 
-            gatherAdditionalResponseInfo(baseVersion, response);
-            gatherExpiresAt(response);
+        Map<String, String> response = new OpenstackService().execute(httpClientInputs, commonInputsBuilder, identityInputsBuilder);
 
-            return response;
-        } catch (MalformedURLException | OpenstackException exception) {
-            return getFailureResultsMap(exception);
-        }
+        gatherAdditionalResponseInfo(baseVersion, response);
+        gatherExpiresAt(response);
+
+        return response;
     }
 
     private void gatherExpiresAt(Map<String, String> response) {

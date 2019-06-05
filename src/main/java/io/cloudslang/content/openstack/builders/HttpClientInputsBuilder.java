@@ -2,19 +2,21 @@ package io.cloudslang.content.openstack.builders;
 
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 
+import java.util.Optional;
+
 import static io.cloudslang.content.httpclient.build.auth.AuthTypes.ANONYMOUS;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.ALLOW_ALL;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.BROWSER_COMPATIBLE;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.STRICT;
 import static io.cloudslang.content.openstack.entities.Constants.Values.DEFAULT_TIMEOUT_VALUE;
 import static io.cloudslang.content.openstack.validators.Validators.bothValuesArePresent;
+import static io.cloudslang.content.openstack.validators.Validators.isPositiveInt;
+import static io.cloudslang.content.openstack.validators.Validators.isValidBoolean;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.CharEncoding.UTF_8;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpClientInputsBuilder {
@@ -30,39 +32,65 @@ public class HttpClientInputsBuilder {
 
         httpClientInputs.setMethod(method);
 
-        if (bothValuesArePresent(proxyHost, proxyPort)) {
-            httpClientInputs.setProxyHost(proxyHost);
-            httpClientInputs.setProxyPort(proxyPort);
-        }
+        httpClientInputs.setTrustAllRoots(Optional
+                .ofNullable(trustAllRoots)
+                .filter(f -> isValidBoolean(trustAllRoots))
+                .orElse(valueOf(FALSE)));
 
-        if (bothValuesArePresent(proxyUsername, proxyPassword)) {
-            httpClientInputs.setProxyUsername(proxyUsername);
-            httpClientInputs.setProxyPassword(proxyPassword);
-        }
+        httpClientInputs.setConnectTimeout(Optional
+                .ofNullable(connectTimeout)
+                .filter(f -> isPositiveInt(connectTimeout))
+                .orElse(DEFAULT_TIMEOUT_VALUE));
 
-        if (bothValuesArePresent(trustKeystore, trustPassword)) {
-            httpClientInputs.setTrustKeystore(trustKeystore);
-            httpClientInputs.setTrustPassword(trustPassword);
-        }
+        httpClientInputs.setSocketTimeout(Optional
+                .ofNullable(socketTimeout)
+                .filter(f -> isPositiveInt(socketTimeout))
+                .orElse(DEFAULT_TIMEOUT_VALUE));
 
-        if (bothValuesArePresent(keystore, keystorePassword)) {
-            httpClientInputs.setKeystore(keystore);
-            httpClientInputs.setKeystorePassword(keystorePassword);
-        }
+        httpClientInputs.setUseCookies(Optional
+                .ofNullable(useCookies)
+                .filter(f -> isValidBoolean(useCookies))
+                .orElse(valueOf(FALSE)));
 
-        if (isBlank(x509HostnameVerifier) || !asList(ALLOW_ALL, BROWSER_COMPATIBLE, STRICT).contains(x509HostnameVerifier)) {
-            httpClientInputs.setX509HostnameVerifier(ALLOW_ALL);
-        } else {
-            httpClientInputs.setX509HostnameVerifier(x509HostnameVerifier);
-        }
+        httpClientInputs.setKeepAlive(Optional
+                .ofNullable(keepAlive)
+                .filter(f -> isValidBoolean(keepAlive))
+                .orElse(valueOf(TRUE)));
 
-        httpClientInputs.setTrustAllRoots(defaultIfEmpty(trustAllRoots, valueOf(FALSE)));
-        httpClientInputs.setConnectTimeout(defaultIfEmpty(connectTimeout, DEFAULT_TIMEOUT_VALUE));
-        httpClientInputs.setSocketTimeout(defaultIfEmpty(socketTimeout, DEFAULT_TIMEOUT_VALUE));
-        httpClientInputs.setUseCookies(defaultIfEmpty(useCookies, valueOf(FALSE)));
-        httpClientInputs.setKeepAlive(defaultIfEmpty(keepAlive, valueOf(TRUE)));
+        httpClientInputs.setX509HostnameVerifier(Optional
+                .ofNullable(x509HostnameVerifier)
+                .filter(f -> asList(ALLOW_ALL, BROWSER_COMPATIBLE, STRICT).contains(x509HostnameVerifier))
+                .orElse(ALLOW_ALL));
+
+        Optional
+                .of(bothValuesArePresent(proxyHost, proxyPort))
+                .ifPresent(set -> {
+                    httpClientInputs.setProxyHost(proxyHost);
+                    httpClientInputs.setProxyPort(proxyPort);
+                });
+
+        Optional
+                .of(bothValuesArePresent(proxyUsername, proxyPassword))
+                .ifPresent(set -> {
+                    httpClientInputs.setProxyUsername(proxyUsername);
+                    httpClientInputs.setProxyPassword(proxyPassword);
+                });
+
+        Optional
+                .of(bothValuesArePresent(trustKeystore, trustPassword))
+                .ifPresent(set -> {
+                    httpClientInputs.setTrustKeystore(trustKeystore);
+                    httpClientInputs.setTrustPassword(trustPassword);
+                });
+
+        Optional
+                .of(bothValuesArePresent(keystore, keystorePassword))
+                .ifPresent(set -> {
+                    httpClientInputs.setKeystore(keystore);
+                    httpClientInputs.setKeystorePassword(keystorePassword);
+                });
+
         httpClientInputs.setQueryParamsAreURLEncoded(valueOf(TRUE));
-
         httpClientInputs.setAuthType(ANONYMOUS);
         httpClientInputs.setContentType(APPLICATION_JSON.getMimeType());
         httpClientInputs.setRequestCharacterSet(UTF_8);

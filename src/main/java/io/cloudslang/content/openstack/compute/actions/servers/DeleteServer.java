@@ -10,10 +10,10 @@ import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.builders.ServersInputsBuilder;
-import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.service.OpenstackService;
+import io.cloudslang.content.utils.OutputUtilities;
+import io.vavr.control.Try;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 import static io.cloudslang.content.constants.OutputNames.EXCEPTION;
@@ -43,7 +43,6 @@ import static io.cloudslang.content.openstack.compute.entities.Inputs.Servers.SE
 import static io.cloudslang.content.openstack.entities.Constants.Headers.TOKEN;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
-import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
 
@@ -174,26 +173,28 @@ public class DeleteServer {
                                        @Param(value = VERSION) String version,
                                        @Param(value = TOKEN, required = true) String token,
                                        @Param(value = SERVER_ID, required = true) String serverId) {
-        try {
-            HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
-                    trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
-                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
-            final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
-                    .withEndpoint(endpoint)
-                    .withAction(DELETE_SERVER)
-                    .withApi(SERVERS)
-                    .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
-                    .withToken(token)
-                    .build();
+        HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
+                trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
+                connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
-            final ServersInputsBuilder serversInputsBuilder = new ServersInputsBuilder.Builder()
-                    .withServerId(serverId)
-                    .build();
+        final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
+                .withEndpoint(endpoint)
+                .withAction(DELETE_SERVER)
+                .withApi(SERVERS)
+                .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
+                .withToken(token)
+                .build();
 
-            return new OpenstackService().execute(httpClientInputs, commonInputsBuilder, serversInputsBuilder);
-        } catch (OpenstackException | MalformedURLException exception) {
-            return getFailureResultsMap(exception);
-        }
+        return Try
+                .of(() -> {
+                    final ServersInputsBuilder serversInputsBuilder = new ServersInputsBuilder.Builder()
+                            .withServerId(serverId)
+                            .build();
+
+                    return new OpenstackService().execute(httpClientInputs, commonInputsBuilder, serversInputsBuilder);
+                })
+                .onFailure(OutputUtilities::getFailureResultsMap)
+                .get();
     }
 }

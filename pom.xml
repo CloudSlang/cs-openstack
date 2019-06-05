@@ -26,6 +26,7 @@
         <cs-commons.version>0.0.6</cs-commons.version>
         <gson.version>2.8.5</gson.version>
         <commons-validator.version>1.6</commons-validator.version>
+        <io-vavr.version>0.10.0</io-vavr.version>
         <!--Misc properties-->
         <maven.sources.skip>true</maven.sources.skip>
         <custom.nexus>overwritten_by_ci</custom.nexus>
@@ -50,11 +51,23 @@
             <groupId>io.cloudslang.content</groupId>
             <artifactId>cs-http-client</artifactId>
             <version>${cs-http-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jcifs</artifactId>
+                    <groupId>jcifs</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.cloudslang.content</groupId>
             <artifactId>cs-commons</artifactId>
             <version>${cs-commons.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>annotations</artifactId>
+                    <groupId>org.jetbrains</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -65,6 +78,21 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>${commons-validator.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-digester</artifactId>
+                    <groupId>commons-digester</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>${io-vavr.version}</version>
         </dependency>
         <!--testing dependencies-->
         <dependency>
@@ -83,11 +111,23 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>objenesis</artifactId>
+                    <groupId>org.objenesis</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>objenesis</artifactId>
+                    <groupId>org.objenesis</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- ended testing dependencies-->
     </dependencies>

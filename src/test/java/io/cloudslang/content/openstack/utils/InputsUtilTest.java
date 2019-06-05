@@ -10,7 +10,7 @@ import java.net.MalformedURLException;
 import static io.cloudslang.content.openstack.TestsUtil.getInputsWrapper;
 import static io.cloudslang.content.openstack.TestsUtil.setExpectedExceptions;
 import static io.cloudslang.content.openstack.compute.entities.ComputeApi.fromString;
-import static io.cloudslang.content.openstack.utils.InputsUtil.buildUrl;
+import static io.cloudslang.content.openstack.utils.InputsUtil.buildEndpoint;
 import static org.junit.Assert.assertEquals;
 
 public class InputsUtilTest {
@@ -38,6 +38,6 @@ public class InputsUtilTest {
     @Test
     public void shouldReturnValidEndpoint() throws MalformedURLException, OpenstackException {
         assertEquals("https://www.example.com:8774/compute/v2.0/",
-                buildUrl(getInputsWrapper("https://www.example.com", "api", "v2.0", "ListAllMajorVersions")));
+                buildEndpoint(getInputsWrapper("https://www.example.com", "api", "v2.0", "ListAllMajorVersions")));
     }
 }

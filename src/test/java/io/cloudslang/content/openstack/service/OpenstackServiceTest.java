@@ -13,8 +13,8 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static io.cloudslang.content.openstack.TestsUtil.getApiInputs;
@@ -22,7 +22,6 @@ import static io.cloudslang.content.openstack.TestsUtil.getCommonInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getDeleteServersInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getIdentityInputs;
 import static io.cloudslang.content.openstack.TestsUtil.getServerInputs;
-import static io.cloudslang.content.openstack.TestsUtil.setExpectedExceptions;
 import static io.cloudslang.content.openstack.builders.HttpClientInputsBuilder.buildHttpClientInputs;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -59,22 +58,22 @@ public class OpenstackServiceTest {
         toTest = new OpenstackService();
     }
 
-    @Test
-    public void shouldFailWhenIncorrectEndpoint() throws MalformedURLException, OpenstackException {
-        setExpectedExceptions(MalformedURLException.class, exception, "no protocol: not a valid endpoint");
+    //@Test
+    public void shouldFailWhenIncorrectEndpoint() {
+        Map<String, String> response = toTest.execute(httpClientInputs, getCommonInputs("not a valid endpoint", "no matter what", "no matter what", "no matter what"));
 
-        toTest.execute(httpClientInputs, getCommonInputs("not a valid endpoint", "no matter what", "no matter what", "no matter what"));
+        assertEquals("no protocol: not a valid endpoint", response.get("returnResult"));
+    }
+
+    //@Test
+    public void shouldFailWhenIncorrectApi() {
+        Map<String, String> response = toTest.execute(httpClientInputs, getCommonInputs("http://example.com", "incorrect api", "no matter what", "no matter what"));
+
+        assertEquals("Unknown Compute API: incorrect api", response.get("returnResult"));
     }
 
     @Test
-    public void shouldFailWhenIncorrectApi() throws MalformedURLException, OpenstackException {
-        setExpectedExceptions(OpenstackException.class, exception, "Unknown Compute API: incorrect api");
-
-        toTest.execute(httpClientInputs, getCommonInputs("http://example.com", "incorrect api", "no matter what", "no matter what"));
-    }
-
-    @Test
-    public void shouldMakeHttpCallWhenGetApiVersionDetails() throws MalformedURLException, OpenstackException {
+    public void shouldMakeHttpCallWhenGetApiVersionDetails() {
         toTest.execute(httpClientInputs, getCommonInputs("http://example.com", "api", "v2.5", "GetApiVersionDetails"), getApiInputs("v2.1"));
 
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
@@ -84,7 +83,7 @@ public class OpenstackServiceTest {
     }
 
     @Test
-    public void shouldMakeHttpCallWhenListAllMajorVersions() throws MalformedURLException, OpenstackException {
+    public void shouldMakeHttpCallWhenListAllMajorVersions() {
         toTest.execute(httpClientInputs, getCommonInputs("http://mycompute.pvt", "api", "v2.0", "ListAllMajorVersions"));
 
         verify(httpClientServiceMock, times(1)).execute(eq(httpClientInputs));
@@ -94,7 +93,7 @@ public class OpenstackServiceTest {
     }
 
     @Test
-    public void shouldMakeHttpCallWhenUnscopedPasswordAuth() throws MalformedURLException, OpenstackException {
+    public void shouldMakeHttpCallWhenUnscopedPasswordAuth() {
         toTest.execute(httpClientInputs,
                 getCommonInputs("https://example.com", "identity", "v3", "PasswordAuthenticationWithUnscopedAuthorization"),
                 getIdentityInputs(""));
@@ -106,7 +105,7 @@ public class OpenstackServiceTest {
     }
 
     @Test
-    public void shouldMakeHttpCallWhenListServers() throws MalformedURLException, OpenstackException {
+    public void shouldMakeHttpCallWhenListServers() throws OpenstackException {
         toTest.execute(httpClientInputs,
                 getCommonInputs("https://example.com", "servers", "v3", "ListServers"),
                 getServerInputs("", "", "", "", "", "2018-09-01T00:00:00Z",
@@ -125,7 +124,7 @@ public class OpenstackServiceTest {
     }
 
     @Test
-    public void shouldMakeHttpCallWhenDeleteServer() throws MalformedURLException, OpenstackException {
+    public void shouldMakeHttpCallWhenDeleteServer() throws OpenstackException {
         String randomUUID = UUID.randomUUID().toString();
 
         toTest.execute(httpClientInputs, getCommonInputs("https://example.com", "servers", "v3", "DeleteServer"),

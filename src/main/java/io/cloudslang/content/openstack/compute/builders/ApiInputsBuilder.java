@@ -1,7 +1,10 @@
 package io.cloudslang.content.openstack.compute.builders;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
+
 import static io.cloudslang.content.openstack.compute.entities.Constants.Versions.DEFAULT_COMPUTE_VERSION;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 public class ApiInputsBuilder {
     private final String apiVersion;
@@ -22,7 +25,7 @@ public class ApiInputsBuilder {
         }
 
         public Builder withApiVersion(String inputValue) {
-            apiVersion = defaultIfEmpty(inputValue, DEFAULT_COMPUTE_VERSION);
+            apiVersion = Optional.ofNullable(inputValue).filter(StringUtils::isNotEmpty).orElse(DEFAULT_COMPUTE_VERSION);
             return this;
         }
     }

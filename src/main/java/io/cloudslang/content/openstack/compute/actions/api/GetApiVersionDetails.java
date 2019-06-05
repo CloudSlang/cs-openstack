@@ -10,10 +10,8 @@ import io.cloudslang.content.constants.ReturnCodes;
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.compute.builders.ApiInputsBuilder;
-import io.cloudslang.content.openstack.exceptions.OpenstackException;
 import io.cloudslang.content.openstack.service.OpenstackService;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 import static io.cloudslang.content.constants.OutputNames.EXCEPTION;
@@ -42,7 +40,6 @@ import static io.cloudslang.content.openstack.compute.entities.Constants.Version
 import static io.cloudslang.content.openstack.compute.entities.Inputs.Api.API_VERSION;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.ENDPOINT;
 import static io.cloudslang.content.openstack.entities.Inputs.CommonInputs.VERSION;
-import static io.cloudslang.content.utils.OutputUtilities.getFailureResultsMap;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.http.client.methods.HttpGet.METHOD_NAME;
 
@@ -150,25 +147,22 @@ public class GetApiVersionDetails {
                                        @Param(value = KEEP_ALIVE) String keepAlive,
                                        @Param(value = VERSION) String version,
                                        @Param(value = API_VERSION, required = true) String apiVersion) {
-        try {
-            HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
-                    trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
-                    connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
-            final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
-                    .withEndpoint(endpoint)
-                    .withAction(GET_API_VERSION_DETAILS)
-                    .withApi(API)
-                    .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
-                    .build();
+        HttpClientInputs httpClientInputs = buildHttpClientInputs(proxyHost, proxyPort, proxyUsername, proxyPassword,
+                trustAllRoots, x509HostnameVerifier, trustKeystore, trustPassword, keystore, keystorePassword,
+                connectTimeout, socketTimeout, useCookies, keepAlive, METHOD_NAME);
 
-            final ApiInputsBuilder apiInputsBuilder = new ApiInputsBuilder.Builder()
-                    .withApiVersion(apiVersion)
-                    .build();
+        final CommonInputsBuilder commonInputsBuilder = new CommonInputsBuilder.Builder()
+                .withEndpoint(endpoint)
+                .withAction(GET_API_VERSION_DETAILS)
+                .withApi(API)
+                .withVersion(defaultIfEmpty(version, DEFAULT_COMPUTE_VERSION))
+                .build();
 
-            return new OpenstackService().execute(httpClientInputs, commonInputsBuilder, apiInputsBuilder);
-        } catch (OpenstackException | MalformedURLException exception) {
-            return getFailureResultsMap(exception);
-        }
+        final ApiInputsBuilder apiInputsBuilder = new ApiInputsBuilder.Builder()
+                .withApiVersion(apiVersion)
+                .build();
+
+        return new OpenstackService().execute(httpClientInputs, commonInputsBuilder, apiInputsBuilder);
     }
 }

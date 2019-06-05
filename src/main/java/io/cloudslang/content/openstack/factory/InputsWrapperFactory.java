@@ -17,25 +17,25 @@ public class InputsWrapperFactory {
             for (T builder : builders) {
                 if (builder instanceof ApiInputsBuilder) {
                     return new InputsWrapper.Builder()
-                            .withApiInputs((ApiInputsBuilder) builder)
-                            .withCommonInputs(commonInputsBuilder)
                             .withHttpClientInputs(httpClientInputs)
+                            .withCommonInputs(commonInputsBuilder)
+                            .withApiInputs((ApiInputsBuilder) builder)
                             .build();
                 }
 
                 if (builder instanceof IdentityInputsBuilder) {
                     return new InputsWrapper.Builder()
-                            .withIdentityInputs((IdentityInputsBuilder) builder)
-                            .withCommonInputs(commonInputsBuilder)
                             .withHttpClientInputs(httpClientInputs)
+                            .withCommonInputs(commonInputsBuilder)
+                            .withIdentityInputs((IdentityInputsBuilder) builder)
                             .build();
                 }
 
                 if (builder instanceof ServersInputsBuilder) {
                     return new InputsWrapper.Builder()
-                            .withServerInputs((ServersInputsBuilder) builder)
-                            .withCommonInputs(commonInputsBuilder)
                             .withHttpClientInputs(httpClientInputs)
+                            .withCommonInputs(commonInputsBuilder)
+                            .withServerInputs((ServersInputsBuilder) builder)
                             .build();
                 }
             }

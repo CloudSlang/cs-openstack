@@ -4,33 +4,40 @@ import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 import io.cloudslang.content.httpclient.services.HttpClientService;
 import io.cloudslang.content.openstack.builders.CommonInputsBuilder;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
-import io.cloudslang.content.openstack.exceptions.OpenstackException;
+import io.cloudslang.content.utils.OutputUtilities;
+import io.vavr.control.Try;
 
-import java.net.MalformedURLException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
-import static io.cloudslang.content.openstack.builders.PayloadBuilder.buildPayload;
-import static io.cloudslang.content.openstack.builders.QueryParamsBuilder.buildQueryParams;
-import static io.cloudslang.content.openstack.factory.Headers.setHeaders;
+import static io.cloudslang.content.openstack.entities.Constants.Requests.THREADS_NUMBER;
 import static io.cloudslang.content.openstack.factory.InputsWrapperFactory.buildWrapper;
-import static io.cloudslang.content.openstack.utils.InputsUtil.buildUrl;
-import static io.cloudslang.content.openstack.utils.InputsUtil.handleQueryUrl;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.join;
+import static io.cloudslang.content.openstack.utils.InputsUtil.setupApiCall;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class OpenstackService {
+    private final ExecutorService executorService = newFixedThreadPool(THREADS_NUMBER);
+
     @SafeVarargs
-    public final <T> Map<String, String> execute(HttpClientInputs httpClientInputs, CommonInputsBuilder commonInputsBuilder, T... builders) throws MalformedURLException, OpenstackException {
+    public final <T> Map<String, String> execute(HttpClientInputs httpClientInputs, CommonInputsBuilder commonInputsBuilder, T... builders) {
         InputsWrapper wrapper = buildWrapper(httpClientInputs, commonInputsBuilder, builders);
 
-        httpClientInputs.setUrl(handleQueryUrl(buildUrl(wrapper), buildQueryParams(wrapper)));
-        setHeaders(wrapper);
+        return Try
+                .of(() -> {
+                    setupApiCall(httpClientInputs, wrapper);
 
-        String payload = buildPayload(wrapper);
-        if (isNotBlank(payload)) {
-            httpClientInputs.setBody(buildPayload(wrapper));
-        }
+                    return asyncCall(httpClientInputs);
+                })
+                .onFailure(OutputUtilities::getFailureResultsMap)
+                .get();
+    }
 
-        return new HttpClientService().execute(httpClientInputs);
+    private Map<String, String> asyncCall(HttpClientInputs httpClientInputs) throws InterruptedException, ExecutionException {
+        return CompletableFuture
+                .supplyAsync(() -> new HttpClientService().execute(httpClientInputs), executorService)
+                .exceptionally(OutputUtilities::getFailureResultsMap)
+                .get();
     }
 }

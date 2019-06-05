@@ -17,8 +17,6 @@ import static io.cloudslang.content.openstack.compute.validators.Validators.isIp
 import static io.cloudslang.content.openstack.compute.validators.Validators.shouldBeTrue;
 import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
 import static io.cloudslang.content.openstack.validators.Validators.isValidHost;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -583,12 +581,12 @@ public class ServersInputsBuilder {
         }
 
         public Builder withAllTenants(String input) {
-            allTenants = isBlank(input) || shouldBeTrue(input) ? TRUE : FALSE;
+            allTenants = isBlank(input) || shouldBeTrue(input);
             return this;
         }
 
         public Builder withDeleted(String input) {
-            deleted = isNotBlank(input) && shouldBeTrue(input) ? TRUE : FALSE;
+            deleted = isNotBlank(input) && shouldBeTrue(input);
             return this;
         }
     }
