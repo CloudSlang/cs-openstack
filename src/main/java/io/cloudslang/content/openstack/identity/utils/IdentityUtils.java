@@ -14,8 +14,9 @@ public class IdentityUtils {
     }
 
     public static Domain buildDomain(String domainId, String domainUserName) {
-        return Optional.of(isJustOneInputValuePresent(domainId, domainUserName))
-                .map(d -> getDomain(domainId, domainUserName))
+        return Optional
+                .of(isJustOneInputValuePresent(domainId, domainUserName))
+                .map(domain -> getDomain(domainId, domainUserName))
                 .orElse(null);
 
     }
@@ -24,13 +25,13 @@ public class IdentityUtils {
         return Optional
                 .ofNullable(domainId)
                 .filter(f -> isNotEmpty(domainId) && isBlank(domainUserName))
-                .map(d1 -> new Domain.Builder()
+                .map(domain -> new Domain.Builder()
                         .withId(domainId)
                         .build())
                 .orElse(Optional
                         .ofNullable(domainUserName)
                         .filter(f -> isNotEmpty(domainUserName))
-                        .map(d2 -> new Domain.Builder()
+                        .map(anotherDomain -> new Domain.Builder()
                                 .withName(domainUserName)
                                 .build())
                         .orElse(null));
@@ -39,7 +40,7 @@ public class IdentityUtils {
     public static User buildUser(Domain domain, String userId, String username, String password) {
         return Optional
                 .of(isJustOneInputValuePresent(userId, username))
-                .map(u -> getUser(domain, userId, username, password))
+                .map(user -> getUser(domain, userId, username, password))
                 .orElse(null);
     }
 
@@ -47,16 +48,16 @@ public class IdentityUtils {
         //noinspection DuplicateExpressions
         return Optional
                 .ofNullable(userId)
-                .filter(f1 -> isNotEmpty(userId) && isBlank(username))
-                .map(u1 -> new User.Builder()
+                .filter(outerFilter -> isNotEmpty(userId) && isBlank(username))
+                .map(user -> new User.Builder()
                         .withDomain(domain)
                         .withId(userId)
                         .withPassword(password)
                         .build())
                 .orElse(Optional
                         .ofNullable(username)
-                        .filter(f2 -> isNotEmpty(username))
-                        .map(u2 -> new User.Builder()
+                        .filter(innerFilter -> isNotEmpty(username))
+                        .map(anotherUser -> new User.Builder()
                                 .withDomain(domain)
                                 .withId(userId)
                                 .withPassword(password)

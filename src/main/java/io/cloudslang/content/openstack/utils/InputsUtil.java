@@ -64,7 +64,7 @@ public class InputsUtil {
                 .ifPresent(p -> httpClientInputs.setBody(payload));
     }
 
-    public static String getQueryParamsString(Map<String, String> queryParamsMap) {
+    public static String getQueryParamsUri(Map<String, String> queryParamsMap) {
         return Optional
                 .ofNullable(queryParamsMap)
                 .filter(f -> !queryParamsMap.isEmpty())
@@ -80,7 +80,7 @@ public class InputsUtil {
         final StringBuilder sb = new StringBuilder();
 
         stream(classOfT.getEnumConstants())
-                .forEach(entry -> concatenateEnumValues(sb, entry));
+                .forEach(entry -> concatenateEnumStringValues(sb, entry));
 
         String errorMessage = sb.toString();
 
@@ -101,7 +101,7 @@ public class InputsUtil {
         return appendIfMissing(sj.toString(), SLASH) + getUri(wrapper);
     }
 
-    private static <E extends Enum<E>> void concatenateEnumValues(StringBuilder sb, E e) {
+    private static <E extends Enum<E>> void concatenateEnumStringValues(StringBuilder sb, E e) {
         if (safeCastOrNull(e, ComputeApi.class) != null) {
             sb
                     .append(((ComputeApi) e).getValue())

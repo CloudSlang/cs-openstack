@@ -31,12 +31,8 @@ public class Headers {
                 .of(isInputGreaterOrEqualThanThreshold(wrapper.getCommonInputsBuilder().getVersion(), THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE))
                 .ifPresent(add -> headersSet.add(new BasicHeader(X_OPENSTACK_REQUEST_ID, join(REQUEST_ID_HEADER_PREFIX + randomUUID().toString()))));
 
-        switch (wrapper.getCommonInputsBuilder().getApi()) {
-            case API:
-                break;
-            default:
-                headersSet.add(new BasicHeader(X_AUTH_TOKEN, wrapper.getCommonInputsBuilder().getToken()));
-                break;
+        if (!API.equals(wrapper.getCommonInputsBuilder().getApi())) {
+            headersSet.add(new BasicHeader(X_AUTH_TOKEN, wrapper.getCommonInputsBuilder().getToken()));
         }
 
         StringJoiner sj = new StringJoiner(lineSeparator());

@@ -9,7 +9,7 @@ import static io.cloudslang.content.openstack.compute.factory.ComputeQueryParams
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.QUESTION_MARK;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Actions.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
 import static io.cloudslang.content.openstack.identity.entities.Constants.QueryParams.NO_CATALOG;
-import static io.cloudslang.content.openstack.utils.InputsUtil.getQueryParamsString;
+import static io.cloudslang.content.openstack.utils.InputsUtil.getQueryParamsUri;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class QueryParamsBuilder {
@@ -28,7 +28,7 @@ public class QueryParamsBuilder {
                         .map(s -> EMPTY)
                         .orElse(sb.append(NO_CATALOG).toString());
             case LIST_SERVERS:
-                String rawQueryParamsString = getQueryParamsString(buildServersQueryParamsMap(wrapper));
+                String rawQueryParamsString = getQueryParamsUri(buildServersQueryParamsMap(wrapper));
 
                 return Optional
                         .ofNullable(rawQueryParamsString)
