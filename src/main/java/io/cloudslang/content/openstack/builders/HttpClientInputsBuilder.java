@@ -2,8 +2,6 @@ package io.cloudslang.content.openstack.builders;
 
 import io.cloudslang.content.httpclient.entities.HttpClientInputs;
 
-import java.util.Optional;
-
 import static io.cloudslang.content.httpclient.build.auth.AuthTypes.ANONYMOUS;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.ALLOW_ALL;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.BROWSER_COMPATIBLE;
@@ -16,6 +14,8 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
@@ -32,59 +32,49 @@ public class HttpClientInputsBuilder {
 
         httpClientInputs.setMethod(method);
 
-        httpClientInputs.setTrustAllRoots(Optional
-                .ofNullable(trustAllRoots)
+        httpClientInputs.setTrustAllRoots(ofNullable(trustAllRoots)
                 .filter(f -> isValidBoolean(trustAllRoots))
                 .orElse(valueOf(FALSE)));
 
-        httpClientInputs.setConnectTimeout(Optional
-                .ofNullable(connectTimeout)
+        httpClientInputs.setConnectTimeout(ofNullable(connectTimeout)
                 .filter(f -> isPositiveInt(connectTimeout))
                 .orElse(DEFAULT_TIMEOUT_VALUE));
 
-        httpClientInputs.setSocketTimeout(Optional
-                .ofNullable(socketTimeout)
+        httpClientInputs.setSocketTimeout(ofNullable(socketTimeout)
                 .filter(f -> isPositiveInt(socketTimeout))
                 .orElse(DEFAULT_TIMEOUT_VALUE));
 
-        httpClientInputs.setUseCookies(Optional
-                .ofNullable(useCookies)
+        httpClientInputs.setUseCookies(ofNullable(useCookies)
                 .filter(f -> isValidBoolean(useCookies))
                 .orElse(valueOf(FALSE)));
 
-        httpClientInputs.setKeepAlive(Optional
-                .ofNullable(keepAlive)
+        httpClientInputs.setKeepAlive(ofNullable(keepAlive)
                 .filter(f -> isValidBoolean(keepAlive))
                 .orElse(valueOf(TRUE)));
 
-        httpClientInputs.setX509HostnameVerifier(Optional
-                .ofNullable(x509HostnameVerifier)
+        httpClientInputs.setX509HostnameVerifier(ofNullable(x509HostnameVerifier)
                 .filter(f -> asList(ALLOW_ALL, BROWSER_COMPATIBLE, STRICT).contains(x509HostnameVerifier))
                 .orElse(ALLOW_ALL));
 
-        Optional
-                .of(bothValuesArePresent(proxyHost, proxyPort))
+        of(bothValuesArePresent(proxyHost, proxyPort))
                 .ifPresent(set -> {
                     httpClientInputs.setProxyHost(proxyHost);
                     httpClientInputs.setProxyPort(proxyPort);
                 });
 
-        Optional
-                .of(bothValuesArePresent(proxyUsername, proxyPassword))
+        of(bothValuesArePresent(proxyUsername, proxyPassword))
                 .ifPresent(set -> {
                     httpClientInputs.setProxyUsername(proxyUsername);
                     httpClientInputs.setProxyPassword(proxyPassword);
                 });
 
-        Optional
-                .of(bothValuesArePresent(trustKeystore, trustPassword))
+        of(bothValuesArePresent(trustKeystore, trustPassword))
                 .ifPresent(set -> {
                     httpClientInputs.setTrustKeystore(trustKeystore);
                     httpClientInputs.setTrustPassword(trustPassword);
                 });
 
-        Optional
-                .of(bothValuesArePresent(keystore, keystorePassword))
+        of(bothValuesArePresent(keystore, keystorePassword))
                 .ifPresent(set -> {
                     httpClientInputs.setKeystore(keystore);
                     httpClientInputs.setKeystorePassword(keystorePassword);

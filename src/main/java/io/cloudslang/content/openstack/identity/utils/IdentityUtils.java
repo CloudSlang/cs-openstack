@@ -2,6 +2,7 @@ package io.cloudslang.content.openstack.identity.utils;
 
 import io.cloudslang.content.openstack.identity.entities.Domain;
 import io.cloudslang.content.openstack.identity.entities.User;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
@@ -25,13 +26,13 @@ public class IdentityUtils {
         return Optional
                 .ofNullable(domainId)
                 .filter(f -> isNotEmpty(domainId) && isBlank(domainUserName))
-                .map(domain -> new Domain.Builder()
+                .map(withDomain -> new Domain.Builder()
                         .withId(domainId)
                         .build())
                 .orElse(Optional
                         .ofNullable(domainUserName)
-                        .filter(f -> isNotEmpty(domainUserName))
-                        .map(anotherDomain -> new Domain.Builder()
+                        .filter(StringUtils::isNotEmpty)
+                        .map(withDomainUserName -> new Domain.Builder()
                                 .withName(domainUserName)
                                 .build())
                         .orElse(null));
@@ -48,7 +49,7 @@ public class IdentityUtils {
         //noinspection DuplicateExpressions
         return Optional
                 .ofNullable(userId)
-                .filter(outerFilter -> isNotEmpty(userId) && isBlank(username))
+                .filter(f -> isNotEmpty(userId) && isBlank(username))
                 .map(user -> new User.Builder()
                         .withDomain(domain)
                         .withId(userId)
@@ -56,7 +57,7 @@ public class IdentityUtils {
                         .build())
                 .orElse(Optional
                         .ofNullable(username)
-                        .filter(innerFilter -> isNotEmpty(username))
+                        .filter(StringUtils::isNotEmpty)
                         .map(anotherUser -> new User.Builder()
                                 .withDomain(domain)
                                 .withId(userId)

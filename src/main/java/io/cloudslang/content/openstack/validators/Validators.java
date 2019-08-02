@@ -1,5 +1,7 @@
 package io.cloudslang.content.openstack.validators;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +22,14 @@ public class Validators {
     public static boolean isJustOneInputValuePresent(String input1, String input2) {
         List<String> inputsList = new ArrayList<>();
 
-        if (isNotBlank(input1)) {
-            inputsList.add(input1);
-        }
-
-        if (isNotBlank(input2)) {
-            inputsList.add(input2);
-        }
+        Optional
+                .ofNullable(input1)
+                .filter(StringUtils::isNotEmpty)
+                .ifPresent(add -> inputsList.add(input1));
+        Optional
+                .ofNullable(input2)
+                .filter(StringUtils::isNotEmpty)
+                .ifPresent(add -> inputsList.add(input2));
 
         return inputsList.size() == 1;
     }
@@ -78,6 +81,7 @@ public class Validators {
     public static boolean isValidBoolean(String input) {
         return Optional
                 .ofNullable(input)
+                .filter(StringUtils::isNotEmpty)
                 .map(b -> asList(new String[]{"true", "false"}).contains(input))
                 .orElse(FALSE);
     }

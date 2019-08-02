@@ -22,7 +22,7 @@ public class InputsUtil {
                 Optional
                         .of(input)
                         .filter(f -> condition)
-                        .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s." + errorMessage, input)));
+                        .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s. Error occurred: %s", input, errorMessage)));
     }
 
     public static String getValidISO8601StringFormat(String input) throws OpenstackException {

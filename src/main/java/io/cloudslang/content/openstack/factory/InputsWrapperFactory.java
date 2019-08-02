@@ -7,43 +7,37 @@ import io.cloudslang.content.openstack.compute.builders.ServersInputsBuilder;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 
+import java.util.Optional;
+
+import static java.util.Arrays.stream;
+
 public class InputsWrapperFactory {
     private InputsWrapperFactory() {
     }
 
     @SafeVarargs
     public static <T> InputsWrapper buildWrapper(HttpClientInputs httpClientInputs, CommonInputsBuilder commonInputsBuilder, T... builders) {
-        if (builders != null && builders.length > 0) {
-            for (T builder : builders) {
-                if (builder instanceof ApiInputsBuilder) {
-                    return new InputsWrapper.Builder()
-                            .withHttpClientInputs(httpClientInputs)
-                            .withCommonInputs(commonInputsBuilder)
-                            .withApiInputs((ApiInputsBuilder) builder)
-                            .build();
-                }
-
-                if (builder instanceof IdentityInputsBuilder) {
-                    return new InputsWrapper.Builder()
-                            .withHttpClientInputs(httpClientInputs)
-                            .withCommonInputs(commonInputsBuilder)
-                            .withIdentityInputs((IdentityInputsBuilder) builder)
-                            .build();
-                }
-
-                if (builder instanceof ServersInputsBuilder) {
-                    return new InputsWrapper.Builder()
-                            .withHttpClientInputs(httpClientInputs)
-                            .withCommonInputs(commonInputsBuilder)
-                            .withServerInputs((ServersInputsBuilder) builder)
-                            .build();
-                }
-            }
-        }
-
-        return new InputsWrapper.Builder()
-                .withCommonInputs(commonInputsBuilder)
+        InputsWrapper.Builder wrapperBuilder = new InputsWrapper.Builder()
                 .withHttpClientInputs(httpClientInputs)
-                .build();
+                .withCommonInputs(commonInputsBuilder);
+
+        Optional
+                .ofNullable(builders)
+                .filter(f -> builders.length > 0)
+                .ifPresent(buildWith -> stream(builders)
+                        .forEach(specificBuilder -> {
+                            if (specificBuilder instanceof ApiInputsBuilder) {
+                                wrapperBuilder
+                                        .withApiInputs((ApiInputsBuilder) specificBuilder);
+                            } else if (specificBuilder instanceof IdentityInputsBuilder) {
+                                wrapperBuilder
+                                        .withIdentityInputs((IdentityInputsBuilder) specificBuilder);
+                            } else if (specificBuilder instanceof ServersInputsBuilder) {
+                                wrapperBuilder
+                                        .withServerInputs((ServersInputsBuilder) specificBuilder);
+                            }
+                        }));
+
+        return wrapperBuilder.build();
     }
 }
