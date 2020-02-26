@@ -18,6 +18,7 @@ import static io.cloudslang.content.openstack.entities.Constants.Values.THRESHOL
 import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
 import static java.lang.String.join;
 import static java.lang.System.lineSeparator;
+import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 
 public class Headers {
@@ -27,8 +28,7 @@ public class Headers {
     public static void setHeaders(InputsWrapper wrapper) {
         Set<Header> headersSet = new HashSet<>();
 
-        Optional
-                .of(isInputGreaterOrEqualThanThreshold(wrapper.getCommonInputsBuilder().getVersion(), THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE))
+        of(isInputGreaterOrEqualThanThreshold(wrapper.getCommonInputsBuilder().getVersion(), THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE))
                 .ifPresent(add -> headersSet.add(new BasicHeader(X_OPENSTACK_REQUEST_ID, join(REQUEST_ID_HEADER_PREFIX + randomUUID().toString()))));
 
         if (!API.equals(wrapper.getCommonInputsBuilder().getApi())) {

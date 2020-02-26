@@ -2,13 +2,13 @@ package io.cloudslang.content.openstack.compute.entities.servers;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public enum SortKey {
@@ -42,11 +42,8 @@ public enum SortKey {
     UUID("uuid"),
     VM_STATE("vm_state");
 
-    private static final Map<String, String> SORT_KEY_MAP = new HashMap<>();
-
-    static {
-        stream(values()).forEach(e -> SORT_KEY_MAP.put(e.name().toLowerCase(), e.getValue()));
-    }
+    private static final Map<String, String> SORT_KEY_MAP = stream(values())
+            .collect(toMap(v -> v.name().toLowerCase(), SortKey::getValue));
 
     private final String value;
 
@@ -60,8 +57,7 @@ public enum SortKey {
 
     public static String fromString(String input) throws OpenstackException {
         return isBlank(input) ? CREATED_AT.getValue() :
-                Optional
-                        .ofNullable(SORT_KEY_MAP.get(input))
+                ofNullable(SORT_KEY_MAP.get(input))
                         .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Servers locked by config : '%s'. Valid values: '%s'.",
                                 input, buildErrorMessage(SortKey.class))));
     }

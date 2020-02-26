@@ -4,19 +4,19 @@ public class Constants {
     private Constants() {
     }
 
-    public class Actions {
+    public static class Actions {
         public static final String DELETE_SERVER = "DeleteServer";
         public static final String GET_API_VERSION_DETAILS = "GetApiVersionDetails";
         public static final String LIST_ALL_MAJOR_VERSIONS = "ListAllMajorVersions";
         public static final String LIST_SERVERS = "ListServers";
     }
 
-    public class Api {
+    public static class Api {
         public static final String API = "api";
         public static final String SERVERS = "servers";
     }
 
-    public class QueryParams {
+    public static class QueryParams {
         public static final String ACCESS_IP_V4 = "access_ip_v4";
         public static final String ACCESS_IP_V6 = "ACCESS_IP_V6 ";
         public static final String ALL_TENANTS = "all_tenants";
@@ -64,15 +64,15 @@ public class Constants {
         public static final String TAGS_ANY = "tags-any";
     }
 
-    public class Uri {
+    public static class Uri {
         public static final String COMPUTE_URI = "compute";
     }
 
-    public class Values {
+    public static class Values {
         public static final String COMPUTE_PORT = "8774";
     }
 
-    public class Versions {
+    public static class Versions {
         public static final String DEFAULT_COMPUTE_VERSION = "v2.0";
         public static final float THRESHOLD_VERSION_FOR_TIMESTAMP_FILTERING_SERVERS = 2.66f;
     }

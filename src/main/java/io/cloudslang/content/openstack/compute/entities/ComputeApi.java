@@ -2,24 +2,20 @@ package io.cloudslang.content.openstack.compute.entities;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 
 public enum ComputeApi {
     SERVERS("servers"),
     API("");
 
-    private static final Map<String, String> API_MAP = new HashMap<>();
-
-    static {
-        stream(values())
-                .forEach(e -> API_MAP.put(e.name().toLowerCase(), e.getValue()));
-    }
+    private static final Map<String, String> API_MAP = stream(values())
+            .collect(toMap(e -> e.name().toLowerCase(), ComputeApi::getValue));
 
     private final String value;
 
@@ -32,8 +28,7 @@ public enum ComputeApi {
     }
 
     public static String fromString(String input) throws OpenstackException {
-        return Optional
-                .ofNullable(API_MAP.get(input))
+        return ofNullable(API_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Compute Api: '%s'. Valid values: '%s'.",
                         input, buildErrorMessage(ComputeApi.class))));
     }

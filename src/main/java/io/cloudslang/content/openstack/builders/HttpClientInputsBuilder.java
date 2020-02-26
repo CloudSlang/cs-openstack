@@ -7,7 +7,6 @@ import static io.cloudslang.content.openstack.entities.Constants.Headers.ALLOW_A
 import static io.cloudslang.content.openstack.entities.Constants.Headers.BROWSER_COMPATIBLE;
 import static io.cloudslang.content.openstack.entities.Constants.Headers.STRICT;
 import static io.cloudslang.content.openstack.entities.Constants.Values.DEFAULT_TIMEOUT_VALUE;
-import static io.cloudslang.content.openstack.validators.Validators.bothValuesArePresent;
 import static io.cloudslang.content.openstack.validators.Validators.isPositiveInt;
 import static io.cloudslang.content.openstack.validators.Validators.isValidBoolean;
 import static java.lang.Boolean.FALSE;
@@ -17,6 +16,7 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.CharEncoding.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpClientInputsBuilder {
@@ -29,6 +29,10 @@ public class HttpClientInputsBuilder {
                                                          String connectTimeout, String socketTimeout, String useCookies,
                                                          String keepAlive, String method) {
         HttpClientInputs httpClientInputs = new HttpClientInputs();
+        httpClientInputs.setQueryParamsAreURLEncoded(valueOf(TRUE));
+        httpClientInputs.setAuthType(ANONYMOUS);
+        httpClientInputs.setContentType(APPLICATION_JSON.getMimeType());
+        httpClientInputs.setRequestCharacterSet(UTF_8);
 
         httpClientInputs.setMethod(method);
 
@@ -80,11 +84,10 @@ public class HttpClientInputsBuilder {
                     httpClientInputs.setKeystorePassword(keystorePassword);
                 });
 
-        httpClientInputs.setQueryParamsAreURLEncoded(valueOf(TRUE));
-        httpClientInputs.setAuthType(ANONYMOUS);
-        httpClientInputs.setContentType(APPLICATION_JSON.getMimeType());
-        httpClientInputs.setRequestCharacterSet(UTF_8);
-
         return httpClientInputs;
+    }
+
+    private static boolean bothValuesArePresent(String input1, String input2) {
+        return isNotBlank(input1) && isNotBlank(input2);
     }
 }

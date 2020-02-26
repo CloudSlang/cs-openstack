@@ -2,13 +2,13 @@ package io.cloudslang.content.openstack.compute.entities.servers;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -34,11 +34,8 @@ public enum Status {
     UNKNOWN("unknown"),
     VERIFY_RESIZE("verify_resize");
 
-    private static final Map<String, String> STATUS_MAP = new HashMap<>();
-
-    static {
-        stream(values()).forEach(e -> STATUS_MAP.put(e.name().toLowerCase(), e.getValue()));
-    }
+    private static final Map<String, String> STATUS_MAP = stream(values())
+            .collect(toMap(v -> v.name().toLowerCase(), Status::getValue));
 
     private final String value;
 
@@ -51,9 +48,9 @@ public enum Status {
     }
 
     public static String fromString(String input) throws OpenstackException {
-        return isBlank(input) ? EMPTY : Optional
-                .ofNullable(STATUS_MAP.get(input))
-                .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Servers status config : '%s'. Valid values: '%s'.",
-                        input, buildErrorMessage(Status.class))));
+        return isBlank(input) ? EMPTY :
+                ofNullable(STATUS_MAP.get(input))
+                        .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Servers status config : '%s'. Valid values: '%s'.",
+                                input, buildErrorMessage(Status.class))));
     }
 }

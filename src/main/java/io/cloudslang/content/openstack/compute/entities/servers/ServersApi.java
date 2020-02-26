@@ -2,13 +2,13 @@ package io.cloudslang.content.openstack.compute.entities.servers;
 
 import io.cloudslang.content.openstack.exceptions.OpenstackException;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static io.cloudslang.content.openstack.utils.InputsUtil.buildErrorMessage;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 
 public enum ServersApi {
     ACTION("action"),
@@ -24,11 +24,8 @@ public enum ServersApi {
     OS_VOLUME_ATTACHMENTS("os-volume_attachments"),
     REMOTE_CONSOLES("remote-consoles");
 
-    private static final Map<String, String> SERVERS_API_MAP = new HashMap<>();
-
-    static {
-        stream(values()).forEach(s -> SERVERS_API_MAP.put(s.name().toLowerCase(), s.getValue()));
-    }
+    private static final Map<String, String> SERVERS_API_MAP = stream(values())
+            .collect(toMap(v -> v.name().toLowerCase(), ServersApi::getValue));
 
     private final String value;
 
@@ -41,8 +38,7 @@ public enum ServersApi {
     }
 
     public static String fromString(String input) throws OpenstackException {
-        return Optional
-                .ofNullable(SERVERS_API_MAP.get(input))
+        return ofNullable(SERVERS_API_MAP.get(input))
                 .orElseThrow(() -> new OpenstackException(format("Invalid Openstack Servers Api: '%s'. Valid values: '%s'.",
                         input, buildErrorMessage(ServersApi.class))));
     }

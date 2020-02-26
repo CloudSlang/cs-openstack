@@ -2,7 +2,7 @@ package io.cloudslang.content.openstack.identity.builders;
 
 import io.cloudslang.content.openstack.identity.entities.Auth;
 
-import static java.lang.Boolean.valueOf;
+import static java.lang.Boolean.parseBoolean;
 
 public class IdentityInputsBuilder {
     private final Auth auth;
@@ -35,7 +35,7 @@ public class IdentityInputsBuilder {
         }
 
         public Builder withNoCatalog(String inputValue) {
-            noCatalog = !valueOf(inputValue);
+            noCatalog = !parseBoolean(inputValue);
             return this;
         }
     }

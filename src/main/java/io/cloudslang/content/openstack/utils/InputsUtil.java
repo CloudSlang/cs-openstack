@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
@@ -33,6 +32,8 @@ import static io.cloudslang.content.openstack.factory.Headers.setHeaders;
 import static io.cloudslang.content.openstack.factory.Path.getPath;
 import static io.cloudslang.content.openstack.factory.Uri.getUri;
 import static java.util.Arrays.stream;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -46,8 +47,7 @@ public class InputsUtil {
         String hostname = buildEndpoint(wrapper);
         String queryParams = buildQueryParams(wrapper);
 
-        String url = Optional
-                .of(hostname)
+        String url = of(hostname)
                 .filter(f -> hostname.endsWith(SLASH))
                 .map(s -> join(hostname.substring(0, hostname.length() - 1), queryParams))
                 .orElse(join(hostname, queryParams));
@@ -58,15 +58,13 @@ public class InputsUtil {
 
         String payload = buildPayload(wrapper);
 
-        Optional
-                .ofNullable(payload)
+        ofNullable(payload)
                 .filter(StringUtils::isNotEmpty)
                 .ifPresent(p -> httpClientInputs.setBody(payload));
     }
 
     public static String getQueryParamsUri(Map<String, String> queryParamsMap) {
-        return Optional
-                .ofNullable(queryParamsMap)
+        return ofNullable(queryParamsMap)
                 .filter(f -> !queryParamsMap.isEmpty())
                 .map(s -> {
                     String queryParamsString = appendQueryParamsEntries(queryParamsMap);
@@ -84,8 +82,7 @@ public class InputsUtil {
 
         String errorMessage = sb.toString();
 
-        return Optional
-                .of(errorMessage)
+        return of(errorMessage)
                 .filter(StringUtils::isNotEmpty)
                 .map(s -> errorMessage.substring(0, errorMessage.length() - 2))
                 .orElse(EMPTY);
@@ -151,12 +148,9 @@ public class InputsUtil {
 
     @SuppressWarnings({"unchecked"})
     private static <T, E> E safeCastOrNull(final T value, final Class<E> targetType) {
-        return Optional
-                .ofNullable(targetType)
+        return ofNullable(targetType)
                 .filter(f -> targetType.isInstance(value))
-                .map(e -> Optional
-                        .of((E) value)
-                        .get())
+                .flatMap(e -> of((E) value))
                 .orElse(null);
     }
 

@@ -7,9 +7,8 @@ import io.cloudslang.content.openstack.compute.builders.ServersInputsBuilder;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.identity.builders.IdentityInputsBuilder;
 
-import java.util.Optional;
-
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
 
 public class InputsWrapperFactory {
     private InputsWrapperFactory() {
@@ -21,8 +20,7 @@ public class InputsWrapperFactory {
                 .withHttpClientInputs(httpClientInputs)
                 .withCommonInputs(commonInputsBuilder);
 
-        Optional
-                .ofNullable(builders)
+        ofNullable(builders)
                 .filter(f -> builders.length > 0)
                 .ifPresent(buildWith -> stream(builders)
                         .forEach(specificBuilder -> {

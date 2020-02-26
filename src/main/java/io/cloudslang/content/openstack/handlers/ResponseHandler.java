@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
@@ -21,6 +20,8 @@ import static io.cloudslang.content.openstack.entities.Constants.Responses.REQUE
 import static io.cloudslang.content.openstack.entities.Constants.Values.THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE;
 import static io.cloudslang.content.openstack.identity.entities.Constants.Headers.X_SUBJECT_TOKEN;
 import static io.cloudslang.content.openstack.validators.Validators.isInputGreaterOrEqualThanThreshold;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -32,8 +33,7 @@ public class ResponseHandler {
     }
 
     public static <T> String handleResponse(String input, Class<T> classOfT) {
-        return Optional
-                .ofNullable(input)
+        return ofNullable(input)
                 .filter(StringUtils::isNotEmpty)
                 .map(s -> extractSpecificResponseString(input, classOfT))
                 .orElse(EMPTY);
@@ -42,19 +42,16 @@ public class ResponseHandler {
     public static void gatherAdditionalResponseInfo(String baseVersion, Map<String, String> response) {
         String token = getHeaderValue(response.get(RESPONSE_HEADERS), X_SUBJECT_TOKEN);
 
-        Optional
-                .ofNullable(token)
+        ofNullable(token)
                 .filter(StringUtils::isNotEmpty)
                 .ifPresent(add -> response.put(TOKEN, token));
 
-        Optional
-                .of(isInputGreaterOrEqualThanThreshold(baseVersion, THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE))
+        of(isInputGreaterOrEqualThanThreshold(baseVersion, THRESHOLD_VERSION_FOR_REQUEST_UUID_PRESENCE))
                 .ifPresent(add -> response.put(REQUEST_TRACKING_ID, getHeaderValue(response.get(RESPONSE_HEADERS), X_OPENSTACK_REQUEST_ID)));
     }
 
     static String getHeaderValue(String input, String headerName) {
-        return Optional
-                .ofNullable(headerName)
+        return ofNullable(headerName)
                 .filter(StringUtils::isNotEmpty)
                 .map(result -> Pattern.compile("\\n")
                         .splitAsStream(input)
@@ -83,14 +80,12 @@ public class ResponseHandler {
     private static String handleApiResponse(ListAllMajorVersionsResponse listAllMajorVersionsResponse) {
         StringBuilder sb = new StringBuilder();
 
-        Optional
-                .ofNullable(listAllMajorVersionsResponse)
+        ofNullable(listAllMajorVersionsResponse)
                 .ifPresent(append -> listAllMajorVersionsResponse.getVersions().stream()
                         .filter(Objects::nonNull)
                         .forEach(version -> sb.append(version.getId()).append(join(COMMA_DELIMITER, BLANK_SPACE))));
 
-        return Optional
-                .of(sb.toString())
+        return of(sb.toString())
                 .filter(StringUtils::isNotEmpty)
                 .map(s -> sb.deleteCharAt(sb.length() - 2).toString().trim())
                 .orElse(EMPTY);
@@ -99,22 +94,19 @@ public class ResponseHandler {
     private static String handleListServersResponse(ListServersResponse listServersResponse) {
         StringBuilder sb = new StringBuilder();
 
-        Optional
-                .ofNullable(listServersResponse)
+        ofNullable(listServersResponse)
                 .ifPresent(append -> listServersResponse.getServers().stream()
                         .filter(Objects::nonNull)
                         .forEach(server -> sb.append(server.getName()).append(join(COMMA_DELIMITER, BLANK_SPACE))));
 
-        return Optional
-                .of(sb.toString())
+        return of(sb.toString())
                 .filter(StringUtils::isNotEmpty)
                 .map(s -> sb.deleteCharAt(sb.length() - 2).toString().trim())
                 .orElse(EMPTY);
     }
 
     private static String handleAuthenticationResponse(AuthenticationResponse authenticationResponse) {
-        return Optional
-                .ofNullable(authenticationResponse.getToken().getExpiresAt())
+        return ofNullable(authenticationResponse.getToken().getExpiresAt())
                 .orElse(EMPTY);
     }
 }
