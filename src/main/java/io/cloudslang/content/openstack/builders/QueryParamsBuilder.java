@@ -8,6 +8,7 @@ import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.Q
 import static io.cloudslang.content.openstack.identity.entities.Constants.Actions.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
 import static io.cloudslang.content.openstack.identity.entities.Constants.QueryParams.NO_CATALOG;
 import static io.cloudslang.content.openstack.utils.InputsUtil.getQueryParamsUri;
+import static io.vavr.API.*;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -21,19 +22,21 @@ public class QueryParamsBuilder {
 
         final String action = wrapper.getCommonInputsBuilder().getAction();
 
-        switch (action) {
-            case PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION:
-                return of(wrapper.getIdentityInputsBuilder().getNoCatalog())
-                        .map(s -> EMPTY)
-                        .orElse(NO_CATALOG);
-            case LIST_SERVERS:
-                String rawQueryParamsString = getQueryParamsUri(buildServersQueryParamsMap(wrapper));
+        return Match(action)
+                .of(
+                        Case($(qcd -> PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION.equalsIgnoreCase(action)),
+                                () -> of(wrapper.getIdentityInputsBuilder().getNoCatalog())
+                                        .map(s -> EMPTY)
+                                        .orElse(NO_CATALOG)),
+                        Case($(qcd -> LIST_SERVERS.equalsIgnoreCase(action)),
+                                () -> {
+                                    final String rawQueryParamsString = getQueryParamsUri(buildServersQueryParamsMap(wrapper));
 
-                return ofNullable(rawQueryParamsString)
-                        .map(s -> sb.append(rawQueryParamsString).toString())
-                        .orElse(EMPTY);
-            default:
-                return EMPTY;
-        }
+                                    return ofNullable(rawQueryParamsString)
+                                            .map(s -> sb.append(rawQueryParamsString).toString())
+                                            .orElse(EMPTY);
+                                }),
+                        Case($(), () -> EMPTY)
+                );
     }
 }

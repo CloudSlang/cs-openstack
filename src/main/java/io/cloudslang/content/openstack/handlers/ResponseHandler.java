@@ -24,6 +24,7 @@ import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class ResponseHandler {
@@ -53,6 +54,7 @@ public class ResponseHandler {
     static String getHeaderValue(String input, String headerName) {
         return ofNullable(headerName)
                 .filter(StringUtils::isNotEmpty)
+                .filter(f -> isNotBlank(input))
                 .map(result -> Pattern.compile("\\n")
                         .splitAsStream(input)
                         .filter(Objects::nonNull)
@@ -69,7 +71,7 @@ public class ResponseHandler {
         if (ListAllMajorVersionsResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
             return handleApiResponse(GSON.fromJson(input, ListAllMajorVersionsResponse.class));
         } else if (AuthenticationResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
-            return handleAuthenticationResponse(GSON.fromJson(input, AuthenticationResponse.class));
+            return ofNullable(GSON.fromJson(input, AuthenticationResponse.class).getToken().getExpiresAt()).orElse(EMPTY);
         } else if (ListServersResponse.class.getCanonicalName().equalsIgnoreCase(classOfT.getCanonicalName())) {
             return handleListServersResponse(GSON.fromJson(input, ListServersResponse.class));
         }
@@ -102,11 +104,6 @@ public class ResponseHandler {
         return of(sb.toString())
                 .filter(StringUtils::isNotEmpty)
                 .map(s -> sb.deleteCharAt(sb.length() - 2).toString().trim())
-                .orElse(EMPTY);
-    }
-
-    private static String handleAuthenticationResponse(AuthenticationResponse authenticationResponse) {
-        return ofNullable(authenticationResponse.getToken().getExpiresAt())
                 .orElse(EMPTY);
     }
 }

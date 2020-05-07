@@ -33,15 +33,16 @@ public class Validators {
     }
 
     public static boolean isInputGreaterOrEqualThanThreshold(String input, float threshold) {
-        if (isNotBlank(input)) {
-            try {
-                return parseFloat(input) >= threshold; // micro-version threshold
-            } catch (NumberFormatException nfe) {
-                return FALSE;
-            }
-        }
-
-        return FALSE;
+        return ofNullable(input)
+                .filter(StringUtils::isNotEmpty)
+                .map(b -> {
+                    try {
+                        return parseFloat(input) >= threshold; // micro-version threshold
+                    } catch (NumberFormatException nfe) {
+                        return FALSE;
+                    }
+                })
+                .orElse(FALSE);
     }
 
     public static boolean isValidHost(String input) {

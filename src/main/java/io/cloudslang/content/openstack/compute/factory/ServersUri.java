@@ -3,6 +3,7 @@ package io.cloudslang.content.openstack.compute.factory;
 import io.cloudslang.content.openstack.entities.InputsWrapper;
 
 import static io.cloudslang.content.openstack.compute.entities.Constants.Actions.DELETE_SERVER;
+import static io.vavr.API.*;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class ServersUri {
@@ -10,13 +11,10 @@ public class ServersUri {
     }
 
     public static String getServersUri(InputsWrapper wrapper) {
-        String actions = wrapper.getCommonInputsBuilder().getAction();
+        final String action = wrapper.getCommonInputsBuilder().getAction();
 
-        switch (actions) {
-            case DELETE_SERVER:
-                return wrapper.getServersInputsBuilder().getServerId();
-            default:
-                return EMPTY;
-        }
+        return Match(action)
+                .of(Case($(uri -> DELETE_SERVER.equalsIgnoreCase(action)), () -> wrapper.getServersInputsBuilder().getServerId()),
+                        Case($(), () -> EMPTY));
     }
 }

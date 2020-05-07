@@ -16,21 +16,21 @@ public class InputsUtil {
     private InputsUtil() {
     }
 
-    public static String getValidStringInput(String input, boolean condition, String errorMessage) throws OpenstackException {
+    public static String getValidStringInput(final String input, final boolean condition, final String errorMessage) throws OpenstackException {
         return isBlank(input) ? EMPTY :
                 of(input)
                         .filter(f -> condition)
                         .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s. Error occurred: %s", input, errorMessage)));
     }
 
-    public static String getValidISO8601StringFormat(String input) throws OpenstackException {
+    public static String getValidISO8601StringFormat(final String input) throws OpenstackException {
         return isBlank(input) ? null :
                 of(input)
                         .filter(f -> isValidISO8601DateFormat(input))
                         .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s. Specify an ISO 8601 compliant formatted string.", input)));
     }
 
-    public static int getValidInt(String input, int defaultValue) throws OpenstackException {
+    public static int getValidInt(final String input, final int defaultValue) throws OpenstackException {
         return isBlank(input) ? defaultValue :
                 of(input)
                         .filter(f -> isValidInt(input))
@@ -38,8 +38,8 @@ public class InputsUtil {
                         .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s. Specify a valid integer value.", input)));
     }
 
-    public static int getValidIntWithinRange(String input, int minValue, int maxValue, int defaultValue) throws OpenstackException {
-        int value = getValidInt(input, defaultValue);
+    public static int getValidIntWithinRange(final String input, final int minValue, final int maxValue, final int defaultValue) throws OpenstackException {
+        final int value = getValidInt(input, defaultValue);
 
         return of(value)
                 .filter(f -> value >= minValue && value <= maxValue)
@@ -47,7 +47,7 @@ public class InputsUtil {
                         input, minValue, maxValue)));
     }
 
-    public static String getValidUuidFormattedString(String input) throws OpenstackException {
+    public static String getValidUuidFormattedString(final String input) throws OpenstackException {
         return of(input)
                 .filter(f -> isValidUuid(input))
                 .orElseThrow(() -> new OpenstackException(format("Incorrect input value: %s. Specify a UUID formatted value.", input)));

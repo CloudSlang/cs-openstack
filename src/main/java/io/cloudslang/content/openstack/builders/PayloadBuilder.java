@@ -6,6 +6,8 @@ import io.cloudslang.content.openstack.entities.InputsWrapper;
 import io.cloudslang.content.openstack.identity.requests.TokenRequest;
 
 import static io.cloudslang.content.openstack.identity.entities.Constants.Actions.PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION;
+import static io.vavr.API.*;
+import static java.util.Optional.of;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.http.client.methods.HttpPost.METHOD_NAME;
 
@@ -16,17 +18,18 @@ public class PayloadBuilder {
     }
 
     public static String buildPayload(InputsWrapper wrapper) {
-        if (METHOD_NAME.equals(wrapper.getHttpClientInputs().getMethod())) {
-            final String action = wrapper.getCommonInputsBuilder().getAction();
+        return of(wrapper)
+                .filter(f -> METHOD_NAME.equals(wrapper.getHttpClientInputs().getMethod()))
+                .map(payload -> {
+                    final String action = wrapper.getCommonInputsBuilder().getAction();
 
-            switch (action) {
-                case PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION:
-                    return GSON.toJson(new TokenRequest(wrapper.getIdentityInputsBuilder().getAuth()), TokenRequest.class);
-                default:
-                    return EMPTY;
-            }
-        }
-
-        return EMPTY;
+                    return Match(action)
+                            .of(
+                                    Case($(qcd -> PASSWORD_AUTHENTICATION_WITH_UNSCOPED_AUTHORIZATION.equalsIgnoreCase(action)),
+                                            () -> GSON.toJson(new TokenRequest(wrapper.getIdentityInputsBuilder().getAuth()), TokenRequest.class)),
+                                    Case($(), () -> EMPTY)
+                            );
+                })
+                .orElse(EMPTY);
     }
 }

@@ -23,6 +23,10 @@ import java.util.StringJoiner;
 import static io.cloudslang.content.constants.OtherValues.COMMA_DELIMITER;
 import static io.cloudslang.content.openstack.builders.PayloadBuilder.buildPayload;
 import static io.cloudslang.content.openstack.builders.QueryParamsBuilder.buildQueryParams;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Api.API;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Api.SERVERS;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Uri.COMPUTE_URI;
+import static io.cloudslang.content.openstack.compute.entities.Constants.Values.COMPUTE_PORT;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.AMPERSAND;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.BLANK_SPACE;
 import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.COLON;
@@ -31,6 +35,9 @@ import static io.cloudslang.content.openstack.entities.Constants.Miscellaneous.S
 import static io.cloudslang.content.openstack.factory.Headers.setHeaders;
 import static io.cloudslang.content.openstack.factory.Path.getPath;
 import static io.cloudslang.content.openstack.factory.Uri.getUri;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Api.IDENTITY;
+import static io.cloudslang.content.openstack.identity.entities.Constants.Values.IDENTITY_PORT;
+import static io.vavr.API.*;
 import static java.util.Arrays.stream;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -43,7 +50,7 @@ public class InputsUtil {
     private InputsUtil() {
     }
 
-    public static void setupApiCall(HttpClientInputs httpClientInputs, InputsWrapper wrapper) throws MalformedURLException, OpenstackException {
+    public static void setupApiCall(HttpClientInputs httpClientInputs, final InputsWrapper wrapper) throws MalformedURLException, OpenstackException {
         String hostname = buildEndpoint(wrapper);
         String queryParams = buildQueryParams(wrapper);
 
@@ -88,7 +95,7 @@ public class InputsUtil {
                 .orElse(EMPTY);
     }
 
-    static String buildEndpoint(InputsWrapper wrapper) throws MalformedURLException, OpenstackException {
+    static String buildEndpoint(final InputsWrapper wrapper) throws MalformedURLException, OpenstackException {
         URL url = new URL(wrapper.getCommonInputsBuilder().getEndpoint());
 
         StringJoiner sj = new StringJoiner(COLON);
@@ -154,7 +161,7 @@ public class InputsUtil {
                 .orElse(null);
     }
 
-    private static String appendQueryParamsEntries(Map<String, String> queryParamsMap) {
+    private static String appendQueryParamsEntries(final Map<String, String> queryParamsMap) {
         StringBuilder sb = new StringBuilder();
 
         queryParamsMap.entrySet().stream()
